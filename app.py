@@ -7,7 +7,7 @@ import os
 from datetime import date, datetime
 
 app = Flask(__name__)
-app.secret_key = "secret-key"
+app.secret_key = os.getenv("SECRET_KEY")
 
 # 사진 업로드 설정
 UPLOAD_FOLDER = 'static/uploads/photos'
@@ -15,16 +15,17 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-db_config = {
-    "host": "localhost",
-    "user": "root",
-    "password": "1127",
-    "database": "dementia_app"
-}
 
 
 def get_db_connection():
-    return mysql.connector.connect(**db_config)
+    conn = mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASS"),
+        database=os.getenv("DB_NAME")
+    )
+    return conn
 
 
 def allowed_file(filename):
