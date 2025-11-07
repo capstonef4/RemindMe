@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remind.Me - 인트로</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    /* 스플래시 화면 */
+    #splash-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      z-index: 9999;
+      flex-direction: column;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .splash-content {
+      text-align: center;
+      animation: scaleIn 0.8s ease;
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    #splash-screen img {
+      max-width: 280px;
+      max-height: 280px;
+      object-fit: contain;
+      margin-bottom: 30px;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+
+    .splash-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 15px;
+      letter-spacing: -1px;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .splash-subtitle {
+      font-size: 1.3rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+
+    .loading-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 30px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      background: white;
+      border-radius: 50%;
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+
+    .dot:nth-child(1) { animation-delay: 0s; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0.5;
+      }
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* 메인 메뉴 */
+    #main-menu {
+      display: none;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      min-height: 100vh;
+      width: 100vw;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 배경 장식 */
+    .decorative-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .circle-1 {
+      width: 500px;
+      height: 500px;
+      top: -150px;
+      right: -150px;
+      animation: float 10s ease-in-out infinite;
+    }
+
+    .circle-2 {
+      width: 400px;
+      height: 400px;
+      bottom: -100px;
+      left: -100px;
+      animation: float 15s ease-in-out infinite;
+      animation-delay: 2s;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.6s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo-container {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .logo-container img {
+      max-width: 200px;
+      max-height: 200px;
+      object-fit: contain;
+      animation: pulse 2s ease-in-out infinite;
+      filter: drop-shadow(0 8px 20px rgba(124, 58, 237, 0.3));
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    h2 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #7c3aed;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+      text-shadow: 2px 2px 4px rgba(124, 58, 237, 0.1);
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .welcome-text {
+      font-size: 1.1rem;
+      color:#6b7280;
+      margin-bottom: 30px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .help-text {
+      font-size: 1.2rem;
+      color:#f87171;
+      margin-bottom: 50px;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      max-width: 350px;
+    }
+
+    button {
+      width: 100%;
+      padding: 20px;
+      font-size: 1.3em;
+      font-weight: 700;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    button:hover::before {
+      width: 400px;
+      height: 400px;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+    }
+
+    button span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-login {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-login:hover {
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-signup {
+      background: white;
+      color: #7c3aed;
+      border: 3px solid #e9d5ff;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.1);
+    }
+
+    .btn-signup:hover {
+      border-color: #c4b5fd;
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.2);
+    }
+
+    /* 모바일 반응형 */
+    @media (max-width: 480px) {
+      .splash-title {
+        font-size: 2.8rem;
+      }
+
+      .splash-subtitle {
+        font-size: 1.1rem;
+      }
+
+      h2 {
+        font-size: 2.8rem;
+      }
+
+      .welcome-text {
+        font-size: 1.05rem;
+      }
+
+      button {
+        padding: 18px;
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 스플래시 화면 -->
+  <div id="splash-screen">
+    <div class="splash-content">
+      <img src="../static/images/llogo.png" alt="Remind.Me 로고">
+      <div class="splash-title">Remind.Me</div>
+      <div class="splash-subtitle">당신의 소중한 기억을 지켜드립니다</div>
+      <div class="loading-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 메인 메뉴 -->
+  <div id="main-menu">
+    <div class="decorative-circle circle-1"></div>
+    <div class="decorative-circle circle-2"></div>
+
+    <div class="container">
+      <div class="logo-container">
+        <img src="../static/images/llogo.png" alt="Remind.Me 로고">
+      </div>
+
+      <h2>Remind.Me</h2>
+      <p class="welcome-text">
+        소중한 추억을 함께 나누고<br>
+        건강한 두뇌 활동을 지원합니다
+      </p>
+
+     <p class="help-text">
+         환자분 대신 보호자님이 회원가입을 진행하셔도 됩니다!
+      </p>
+
+      <div class="button-group">
+        <button class="btn-login" onclick="location.href='/login'">
+          <span>로그인 🔐</span>
+        </button>
+        <button class="btn-signup" onclick="location.href='/signup'">
+          <span>회원가입 ✨</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.onload = () => {
+      setTimeout(() => {
+        // 스플래시 페이드아웃
+        const splash = document.getElementById('splash-screen');
+        splash.style.transition = 'opacity 0.5s ease';
+        splash.style.opacity = '0';
+
+        setTimeout(() => {
+          splash.style.display = 'none';
+          document.getElementById('main-menu').style.display = 'block';
+          document.body.style.overflow = 'auto';
+        }, 500);
+      }, 2000); // 2초 후에 메인 메뉴 표시
+    };
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>치매 예방 운동</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .back-button {
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      color: #667eea;
+      padding: 12px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 600;
+      margin-bottom: 30px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .back-button:hover {
+      background: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+
+    /* 카테고리 선택 화면 */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .category-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .category-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .category-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    .category-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .category-count {
+      color: #667eea;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    /* 영상 선택 화면 */
+    .video-selection {
+      display: none;
+    }
+
+    .video-selection.active {
+      display: block;
+    }
+
+    .selection-header {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      backdrop-filter: blur(10px);
+    }
+
+    .selection-title {
+      color: white;
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .video-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .video-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .video-thumbnail {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .video-info {
+      padding: 20px;
+    }
+
+    .video-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .video-description {
+      font-size: 0.95rem;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .video-duration {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .difficulty {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .difficulty.easy {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .difficulty.medium {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .difficulty.hard {
+      background:#f9a8d4;
+      color: #be185d;
+    }
+
+    /* 영상 재생 화면 */
+    .video-player {
+      display: none;
+    }
+
+    .video-player.active {
+      display: block;
+    }
+
+    .player-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .player-header {
+      margin-bottom: 20px;
+    }
+
+    .player-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .player-meta {
+      font-size: 1rem;
+      color: #666;
+    }
+
+    .video-frame {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .video-frame iframe {
+      width: 100%;
+      height: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .category-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="back-button" onclick="goBack()">← 뒤로 가기</button>
+
+    <div class="header">
+      <h1>🧠 치매 예방 운동</h1>
+      <p>건강한 뇌를 위한 맞춤 운동을 선택해보세요</p>
+    </div>
+
+    <!-- 1단계: 카테고리 선택 -->
+    <div id="categoryView" class="category-view">
+      <div class="category-grid">
+        <div class="category-card" onclick="showVideos('chair')">
+          <div class="category-icon">🪑</div>
+          <div class="category-title">의자 운동</div>
+          <div class="category-count">3개 영상</div>
+        </div>
+
+        <div class="category-card" onclick="showVideos('finger')">
+          <div class="category-icon">✋</div>
+          <div class="category-title">손가락 운동</div>
+          <div class="category-count">3개 영상</div>
+        </div>
+
+        <div class="category-card" onclick="showVideos('exercise')">
+          <div class="category-icon">💪</div>
+          <div class="category-title">치매 예방 체조</div>
+          <div class="category-count">3개 영상</div>
+        </div>
+
+
+      </div>
+    </div>
+
+    <!-- 2단계: 영상 선택 -->
+    <div id="videoSelection" class="video-selection">
+      <div class="selection-header">
+        <div class="selection-title" id="selectionTitle"></div>
+      </div>
+      <div class="video-grid" id="videoGrid"></div>
+    </div>
+
+    <!-- 3단계: 영상 재생 -->
+    <div id="videoPlayer" class="video-player">
+      <div class="player-container">
+        <div class="player-header">
+          <div class="player-title" id="playerTitle"></div>
+          <div class="player-meta" id="playerMeta"></div>
+        </div>
+        <div class="video-frame">
+          <iframe id="videoIframe" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const videos = {
+      chair: [
+        {
+          id: 'VF20iXwq29U',
+          title: '의자 운동 - 초급편',
+          description: '앉아서 편하게 할 수 있는 스트레칭과 가벼운 근력 운동',
+          duration: '6분',
+          difficulty: 'easy',
+          icon: '🪑'
+        },
+        {
+          id: 'U9dm_lI-ih0',
+          title: '의자 운동 - 중급편',
+          description: '혈당,혈압 잡는 의자운동',
+          duration: '7분',
+          difficulty: 'medium',
+          icon: '💺'
+        },
+        {
+          id: 'h4_V_iISWRU',
+          title: '의자 운동 - 고급편',
+          description: '노래에 맞춰 하는 의자운동',
+          duration: '6분',
+          difficulty: 'hard',
+          icon: '🎵'
+        }
+      ],
+      finger: [
+        {
+          id: 'IiTdXuOEDbo',
+          title: '손가락 운동 - 초급편',
+          description: '손가락 운동으로 뇌 활성화',
+          duration: '3분',
+          difficulty: 'easy',
+          icon: '👆'
+        },
+        {
+          id: 'Bdwsev5sU4A',
+          title: '손가락 운동 - 중급편',
+          description: '뇌신경이 살아나는 손운동',
+          duration: '3분',
+          difficulty: 'medium',
+          icon: '🖖'
+        },
+        {
+          id: 'JAp3Lgu98S4',
+          title: '손가락 운동 - 고급편',
+          description: '건강박수',
+          duration: '5분',
+          difficulty: 'hard',
+          icon: '👏'
+        }
+      ],
+      exercise: [
+        {
+          id: 'ZBht7-Kn3Cs',
+          title: '치매 예방 체조 - 초급편',
+          description: '아침을 깨우는 전신 스트레칭',
+          duration: '7분',
+          difficulty: 'easy',
+          icon: '🤸'
+        },
+        {
+          id: 'npaTjimlF00',
+          title: '치매 예방 체조 - 중급편',
+          description: '신나는 음악과 함께하는 체조로 즐겁게 운동하기',
+          duration: '7분',
+          difficulty: 'medium',
+          icon: '👯'
+        },
+        {
+          id: 'Fzzo_sHW3xE',
+          title: '치매 예방 체조 - 고급편',
+          description: '나성에가면♪에 맞춰 신나는 체조하기',
+          duration: '7분',
+          difficulty: 'hard',
+          icon: '🎵'
+        }
+      ]
+
+    };
+
+    const categoryNames = {
+      chair: '의자 운동',
+      finger: '손가락 운동',
+      exercise: '치매 예방 체조',
+
+    };
+
+    let currentCategory = '';
+
+    function showVideos(category) {
+      currentCategory = category;
+      document.getElementById('categoryView').classList.add('hidden');
+      document.getElementById('videoSelection').classList.add('active');
+      document.getElementById('selectionTitle').textContent = categoryNames[category];
+
+      const videoGrid = document.getElementById('videoGrid');
+      videoGrid.innerHTML = '';
+
+      videos[category].forEach(video => {
+        const card = document.createElement('div');
+        card.className = 'video-card';
+        card.onclick = () => playVideo(video);
+
+        card.innerHTML = `
+          <div class="video-thumbnail">${video.icon}</div>
+          <div class="video-info">
+            <div class="video-title">${video.title}</div>
+            <div class="video-description">${video.description}</div>
+            <span class="video-duration">⏱️ ${video.duration}</span>
+            <span class="difficulty ${video.difficulty}">${video.difficulty === 'easy' ? '초급' : video.difficulty === 'medium' ? '중급' : '고급'}</span>
+          </div>
+        `;
+
+        videoGrid.appendChild(card);
+      });
+    }
+
+    function playVideo(video) {
+      document.getElementById('videoSelection').classList.remove('active');
+      document.getElementById('videoPlayer').classList.add('active');
+
+      document.getElementById('playerTitle').textContent = video.title;
+      document.getElementById('playerMeta').textContent = `${video.duration} · ${video.difficulty === 'easy' ? '초급' : video.difficulty === 'medium' ? '중급' : '고급'}`;
+      document.getElementById('videoIframe').src = `https://www.youtube.com/embed/${video.id}?autoplay=1`;
+    }
+
+    function goBack() {
+      const player = document.getElementById('videoPlayer');
+      const selection = document.getElementById('videoSelection');
+      const category = document.getElementById('categoryView');
+
+      if (player.classList.contains('active')) {
+        // 영상 재생 중 -> 영상 선택으로
+        player.classList.remove('active');
+        selection.classList.add('active');
+        document.getElementById('videoIframe').src = '';
+      } else if (selection.classList.contains('active')) {
+        // 영상 선택 중 -> 카테고리 선택으로
+        selection.classList.remove('active');
+        category.classList.remove('hidden');
+      } else {
+        // 카테고리 선택 중 -> 지도로
+        location.href = 'map';
+      }
+    }
+  </script>
+</body>
+</html>

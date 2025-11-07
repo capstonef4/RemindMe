@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>추억 사진 업로드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', Arial, sans-serif;
+            background: #f5f3ff;
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #7c3aed;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 1.15em;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 35px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.08);
+            border: 2px solid #ede9fe;
+        }
+
+        .patient-select label {
+            display: block;
+            font-size: 1.15em;
+            color: #1f2937;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .patient-select select {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 1.05em;
+            border: 2px solid #e9d5ff;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #374151;
+        }
+
+        .patient-select select:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .upload-area {
+            border: 3px dashed #c4b5fd;
+            border-radius: 20px;
+            padding: 50px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.05) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .upload-area:hover {
+            border-color: #7c3aed;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 4.5em;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-text {
+            font-size: 1.3em;
+            color: #7c3aed;
+            font-weight: 600;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-hint {
+            color: #9ca3af;
+            font-size: 0.95em;
+            position: relative;
+            z-index: 1;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .preview-item {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.12);
+            transition: all 0.3s;
+        }
+
+        .preview-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.2);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(220, 38, 38, 0.95);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .remove-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 1.05em;
+            color: #374151;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 1em;
+            border: 2px solid #e9d5ff;
+            border-radius: 12px;
+            font-family: inherit;
+            transition: all 0.3s;
+            color: #1f2937;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 110px;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.2em;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button.primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button.primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+        }
+
+        button.primary:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .message {
+            padding: 16px 24px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+            display: none;
+            font-weight: 600;
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #34d399;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #f87171;
+        }
+
+        .section-title {
+            font-size: 1.6em;
+            color: #7c3aed;
+            margin-bottom: 25px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: linear-gradient(180deg, #7c3aed 0%, #a855f7 100%);
+            border-radius: 2px;
+        }
+
+        .uploaded-photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .photo-card {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.08);
+            transition: all 0.3s;
+            border: 2px solid #f3f4f6;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(124, 58, 237, 0.15);
+            border-color: #e9d5ff;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .photo-card-info {
+            padding: 18px;
+        }
+
+        .photo-card-date {
+            color: #7c3aed;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+
+        .photo-card-desc {
+            color: #6b7280;
+            font-size: 0.95em;
+            line-height: 1.5;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💜 추억 사진 업로드</h1>
+        <p>소중한 순간을 함께 나눠주세요</p>
+    </div>
+
+    <div class="container">
+        <div class="message success" id="success-message">
+            ✅ 사진이 성공적으로 업로드되었습니다!
+        </div>
+
+        <div class="message error" id="error-message">
+            ❌ 오류가 발생했습니다.
+        </div>
+
+        <div class="card">
+            <div class="patient-select">
+                <label for="patient-select">👤 환자 선택</label>
+                <select id="patient-select">
+                    <option value="">환자를 선택하세요</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">사진을 여기에 드래그하거나 클릭하세요</div>
+                <div class="upload-hint">JPG, PNG, GIF 형식 지원</div>
+                <input type="file" id="file-input" accept="image/*" multiple>
+            </div>
+        </div>
+
+        <div class="preview-container" id="preview-container"></div>
+
+        <div class="card">
+            <div class="form-group">
+                <label for="photo-date">📅 사진 날짜</label>
+                <input type="date" id="photo-date">
+            </div>
+
+            <div class="form-group">
+                <label for="photo-location">📍 장소</label>
+                <input type="text" id="photo-location" placeholder="예: 서울 남산타워, 제주도 해변">
+            </div>
+
+            <div class="form-group">
+                <label for="photo-description">✏️ 사진 설명</label>
+                <textarea id="photo-description" placeholder="이 사진에 담긴 추억을 적어주세요..."></textarea>
+            </div>
+
+            <div class="button-container">
+                <button class="primary" id="upload-btn" disabled>
+                    <span style="position: relative; z-index: 1;">사진 업로드하기 🚀</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 40px;">
+            <div class="section-title">📂 업로드된 사진 목록</div>
+            <div class="uploaded-photos" id="uploaded-photos"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const previewContainer = document.getElementById('preview-container');
+        const uploadBtn = document.getElementById('upload-btn');
+        const patientSelect = document.getElementById('patient-select');
+
+        async function loadPatients() {
+    try {
+        const guardianId = localStorage.getItem("user_id"); // 로그인한 보호자 ID 가져오기
+        const response = await fetch(`/api/connected_patients?guardian_id=${guardianId}`);
+        const data = await response.json();
+
+        if (data.patients) {
+            data.patients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.user_id;
+                option.textContent = patient.user_name;
+                patientSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('환자 목록 로드 실패:', error);
+    }
+}
+
+
+        function handleFiles(files) {
+            selectedFiles = Array.from(files);
+            displayPreviews();
+            checkUploadReady();
+        }
+
+        function displayPreviews() {
+            previewContainer.innerHTML = '';
+
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <button class="remove-btn" onclick="removeFile(${index})">×</button>
+                    `;
+                    previewContainer.appendChild(previewItem);
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+
+        window.removeFile = function(index) {
+            selectedFiles.splice(index, 1);
+            displayPreviews();
+            checkUploadReady();
+        };
+
+        function checkUploadReady() {
+            uploadBtn.disabled = !(selectedFiles.length > 0 && patientSelect.value);
+        }
+
+        async function uploadPhotos() {
+            const patientId = patientSelect.value;
+            const photoDate = document.getElementById('photo-date').value || new Date().toISOString().split('T')[0];
+            const location = document.getElementById('photo-location').value;
+            const description = document.getElementById('photo-description').value;
+
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<span style="position: relative; z-index: 1;">업로드 중... ⏳</span>';
+
+            for (const file of selectedFiles) {
+                const formData = new FormData();
+                formData.append('photo', file);
+                formData.append('guardian_id', localStorage.getItem("user_id"));
+                formData.append('patient_id', patientId);
+                formData.append('photo_date', photoDate);
+                formData.append('location', location);
+                formData.append('description', description);
+
+                try {
+                    const response = await fetch('/api/upload_photo', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.error);
+                    }
+
+                } catch (error) {
+                    console.error('업로드 실패:', error);
+                    const errorMsg = document.getElementById('error-message');
+                    errorMsg.textContent = '❌ ' + error.message;
+                    errorMsg.style.display = 'block';
+                    setTimeout(() => errorMsg.style.display = 'none', 3000);
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = '<span style="position: relative; z-index: 1;">사진 업로드하기 🚀</span>';
+                    return;
+                }
+            }
+
+            const successMsg = document.getElementById('success-message');
+            successMsg.style.display = 'block';
+            setTimeout(() => successMsg.style.display = 'none', 3000);
+
+            selectedFiles = [];
+            previewContainer.innerHTML = '';
+            fileInput.value = '';
+            document.getElementById('photo-location').value = '';
+            document.getElementById('photo-description').value = '';
+
+            uploadBtn.innerHTML = '<span style="position: relative; z-index: 1;">사진 업로드하기 🚀</span>';
+            checkUploadReady();
+
+            loadUploadedPhotos(patientId);
+        }
+
+        async function loadUploadedPhotos(patientId) {
+    if (!patientId) return;
+
+    try {
+        const guardianId = localStorage.getItem("user_id"); // ✅ 추가
+        const response = await fetch(`/api/photos/${patientId}?guardian_id=${guardianId}`); // ✅ 수정
+        const data = await response.json();
+
+        const uploadedPhotos = document.getElementById('uploaded-photos');
+        uploadedPhotos.innerHTML = '';
+
+        if (data.photos && data.photos.length > 0) {
+            data.photos.forEach(photo => {
+                const card = document.createElement('div');
+                card.className = 'photo-card';
+                card.innerHTML = `
+                    <img src="/static/uploads/photos/${photo.filename}" alt="${photo.description || '사진'}">
+                    <div class="photo-card-info">
+                        <div class="photo-card-date">📅 ${photo.photo_date}</div>
+                        ${photo.location ? `<div class="photo-card-desc">📍 ${photo.location}</div>` : ''}
+                        ${photo.description ? `<div class="photo-card-desc">${photo.description}</div>` : ''}
+                    </div>
+                `;
+                uploadedPhotos.appendChild(card);
+            });
+        } else {
+            uploadedPhotos.innerHTML = `<p style="color:#9ca3af; text-align:center;">아직 업로드된 사진이 없습니다.</p>`;
+        }
+
+    } catch (error) {
+        console.error('사진 목록 로드 실패:', error);
+    }
+}
+6
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            handleFiles(e.dataTransfer.files);
+        });
+
+        uploadBtn.addEventListener('click', uploadPhotos);
+
+        patientSelect.addEventListener('change', (e) => {
+            checkUploadReady();
+            loadUploadedPhotos(e.target.value);
+        });
+
+        document.getElementById('photo-date').valueAsDate = new Date();
+
+        // 페이지 로드 시 한 번만 실행
+window.addEventListener("DOMContentLoaded", () => {
+  loadPatients();
+});
+
+    </script>
+</body>
+</html>

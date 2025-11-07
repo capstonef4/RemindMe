@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로그인 - Remind.Me</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 배경 장식 */
+    .decorative-circle {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .circle-1 {
+      width: 400px;
+      height: 400px;
+      top: -150px;
+      right: -150px;
+      animation: float 10s ease-in-out infinite;
+    }
+
+    .circle-2 {
+      width: 300px;
+      height: 300px;
+      bottom: -100px;
+      left: -100px;
+      animation: float 15s ease-in-out infinite;
+      animation-delay: 2s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(-30px) scale(1.1);
+        opacity: 0.6;
+      }
+    }
+
+    .container {
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 10px 40px rgba(124, 58, 237, 0.15);
+      max-width: 480px;
+      width: 100%;
+      padding: 50px 45px;
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.5s ease;
+      border: 3px solid #f3f4f6;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .logo-icon {
+      font-size: 4rem;
+      margin-bottom: 15px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    h2 {
+      color: #7c3aed;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 2.5em;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 40px;
+      font-size: 1.05em;
+    }
+
+    .input-group {
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .input-label {
+      display: block;
+      color: #374151;
+      font-size: 1.05em;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 18px 22px;
+      font-size: 1.05em;
+      border: 2px solid #e9d5ff;
+      border-radius: 14px;
+      transition: all 0.3s;
+      font-family: inherit;
+      color: #1f2937;
+      background: white;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+      transform: translateY(-2px);
+    }
+
+    input::placeholder {
+      color: #9ca3af;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #7c3aed;
+    }
+
+    .checkbox-label {
+      color: #6b7280;
+      font-size: 0.95em;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 18px;
+      font-size: 1.15em;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    button:hover::before {
+      width: 400px;
+      height: 400px;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+    }
+
+    button span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-login {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-login:hover {
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+
+
+    .btn-back {
+      background: white;
+      color: #7c3aed;
+      border: 2px solid #e9d5ff;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.1);
+    }
+
+    .btn-back:hover {
+      border-color: #c4b5fd;
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.2);
+    }
+
+    .divider {
+      text-align: center;
+      margin: 25px 0;
+      color: #9ca3af;
+      font-size: 0.9em;
+      position: relative;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: #e5e7eb;
+    }
+
+    .divider::before {
+      left: 0;
+    }
+
+    .divider::after {
+      right: 0;
+    }
+
+    .signup-link {
+      text-align: center;
+      margin-top: 25px;
+      color: #6b7280;
+      font-size: 0.95em;
+    }
+
+    .signup-link a {
+      color: #7c3aed;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    .signup-link a:hover {
+      color: #a855f7;
+      text-decoration: underline;
+    }
+
+    /* 모바일 반응형 */
+    @media (max-width: 480px) {
+      .container {
+        padding: 40px 30px;
+      }
+
+      h2 {
+        font-size: 2.2em;
+      }
+
+      .logo-icon {
+        font-size: 3.5rem;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        padding: 16px 20px;
+      }
+
+      button {
+        padding: 16px;
+        font-size: 1.1em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="decorative-circle circle-1"></div>
+  <div class="decorative-circle circle-2"></div>
+
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon">🔐</div>
+    </div>
+
+    <h2>로그인</h2>
+    <p class="subtitle">Remind.Me에 오신 것을 환영합니다</p>
+
+    <div class="input-group">
+      <label class="input-label">
+        <span>👤</span> 아이디
+      </label>
+      <input type="text" id="id" placeholder="아이디를 입력하세요" />
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">
+        <span>🔒</span> 비밀번호
+      </label>
+      <input type="password" id="password" placeholder="비밀번호를 입력하세요" />
+    </div>
+
+    <div class="checkbox-group">
+      <input type="checkbox" id="auto-login">
+      <label class="checkbox-label" for="auto-login">자동 로그인</label>
+    </div>
+
+    <div class="button-group">
+      <button class="btn-login" onclick="login()">
+        <span>로그인 🚀</span>
+      </button>
+
+
+
+      <div class="divider">또는</div>
+
+      <button class="btn-back" onclick="location.href='/'">
+        <span>← 메인으로</span>
+      </button>
+    </div>
+
+    <div class="signup-link">
+      아직 계정이 없으신가요? <a href="/signup">회원가입</a>
+    </div>
+  </div>
+
+  <script>
+    async function login() {
+  const loginId = document.getElementById("id").value;   // ✅ 아이디 입력창
+  const password = document.getElementById("password").value;
+
+  const res = await fetch("/do_login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_login_id: loginId,
+      user_password: password
+    })
+  });
+
+  const data = await res.json();
+  if (res.ok) {
+  alert("✅ 로그인 성공!");
+  localStorage.setItem("user_id", data.user_id);
+  localStorage.setItem("role", data.role);
+
+  // ✅ 로그인 성공 시 바로 지도 페이지로 이동
+  window.location.href = "/map";
+} else {
+  alert("❌ 로그인 실패: " + (data.error || "서버 오류"));
+}
+
+}
+
+  </script>
+
+</body>
+</html>

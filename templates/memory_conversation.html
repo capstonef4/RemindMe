@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 추억 대화</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 10px 40px rgba(124, 58, 237, 0.15);
+            max-width: 850px;
+            width: 100%;
+            padding: 45px;
+            border: 3px solid #f3f4f6;
+        }
+
+        h1 {
+            color: #7c3aed;
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 2.6em;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .photo-container {
+            text-align: center;
+            margin-bottom: 35px;
+            position: relative;
+        }
+
+        #current-photo {
+            max-width: 100%;
+            max-height: 420px;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(124, 58, 237, 0.2);
+            display: none;
+            border: 4px solid #f3f4f6;
+        }
+
+        #photo-info {
+            margin-top: 18px;
+            color: #6b7280;
+            font-size: 1.15em;
+            font-weight: 500;
+        }
+
+        .status {
+            text-align: center;
+            margin: 25px 0;
+            font-size: 1.25em;
+            color: #4b5563;
+            min-height: 35px;
+            font-weight: 600;
+            padding: 12px 20px;
+        }
+
+        .listening {
+            color: #dc2626;
+            font-weight: 700;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        .message {
+            margin-bottom: 18px;
+            padding: 18px 22px;
+            border-radius: 16px;
+            animation: fadeIn 0.5s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-message {
+            background: linear-gradient(135deg, #ddd6fe 0%, #e9d5ff 100%);
+            border-left: 5px solid #7c3aed;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #fae8ff 0%, #f5d0fe 100%);
+            border-left: 5px solid #a855f7;
+        }
+
+        .message-label {
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            color: #374151;
+        }
+
+        .message-text {
+            font-size: 1.2em;
+            line-height: 1.7;
+            color: #1f2937;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 18px;
+            justify-content: center;
+            margin-top: 35px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 22px 42px;
+            font-size: 1.35em;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        #start-btn {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        }
+
+        #listen-btn {
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+            display: none;
+        }
+
+        #next-photo-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            display: none;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
+        }
+
+        button:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #7c3aed;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-left: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .decorative-circle {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .circle-1 {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            right: -100px;
+        }
+
+        .circle-2 {
+            width: 300px;
+            height: 300px;
+            bottom: -50px;
+            left: -50px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
+        }
+
+        .progress-info {
+            text-align: center;
+            margin: 15px 0;
+            color: #7c3aed;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="decorative-circle circle-1"></div>
+    <div class="decorative-circle circle-2"></div>
+
+    <div class="container">
+        <h1>🌸 오늘의 추억 대화 🌸</h1>
+
+        <div class="photo-container">
+            <img id="current-photo" alt="추억 사진">
+            <div id="photo-info"></div>
+        </div>
+
+        <div class="progress-info" id="progress-info" style="display: none;"></div>
+        <div class="status" id="status">대화 시작 버튼을 눌러주세요</div>
+
+        <div id="conversation-log" class="chat-box"></div>
+
+        <div class="button-container">
+            <button id="start-btn"><span>대화 시작 🎯</span></button>
+            <button id="listen-btn"><span>내 이야기 들려주기 🎤</span></button>
+            <button id="next-photo-btn"><span>다음 사진 보기 📸</span></button>
+        </div>
+    </div>
+
+    <script>
+let patientId = localStorage.getItem('user_id');
+let currentPhoto = null;
+let conversationCount = 0;
+let selectedQuestions = []; // 이번 세션에 사용할 질문들
+let totalQuestions = 0; // 총 질문 개수
+
+const synthesis = window.speechSynthesis;
+const startBtn = document.getElementById('start-btn');
+const listenBtn = document.getElementById('listen-btn');
+const nextPhotoBtn = document.getElementById('next-photo-btn');
+const statusDiv = document.getElementById('status');
+const progressInfo = document.getElementById('progress-info');
+const conversationLog = document.getElementById('conversation-log');
+const currentPhotoImg = document.getElementById('current-photo');
+const photoInfo = document.getElementById('photo-info');
+
+// ✅ 음성인식 설정
+let recognition = null;
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'ko-KR';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+}
+
+// ✅ 음성 출력
+function speak(text, callback) {
+    synthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'ko-KR';
+    utter.rate = 0.9;
+    utter.onend = () => { if (callback) callback(); };
+    synthesis.speak(utter);
+}
+
+// ✅ 메시지 추가
+function addMessage(type, label, text) {
+    const msg = document.createElement('div');
+    msg.className = `message ${type}-message`;
+    msg.innerHTML = `<div class="message-label">${label}</div><div class="message-text">${text}</div>`;
+    conversationLog.appendChild(msg);
+    conversationLog.scrollTop = conversationLog.scrollHeight;
+}
+
+// ✅ 진행 상황 업데이트
+function updateProgress() {
+    progressInfo.style.display = 'block';
+    progressInfo.textContent = `💬 질문 ${conversationCount} / ${totalQuestions}`;
+}
+
+// ✅ 최신 사진 불러오기
+async function loadDailyPhoto() {
+    try {
+        const response = await fetch('/api/daily_photos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ patient_id: patientId })
+        });
+        const data = await response.json();
+
+        const photos = data.memory_photo || [];
+        if (photos.length === 0) {
+            statusDiv.textContent = '📭 보호자가 올린 사진이 없습니다.';
+            return false;
+        }
+
+        currentPhoto = photos[0];
+        currentPhotoImg.src = `/static/uploads/photos/${currentPhoto.filename}`;
+        currentPhotoImg.style.display = 'block';
+        photoInfo.textContent = `📅 ${currentPhoto.photo_date || ''}  📍 ${currentPhoto.location || ''}`;
+        return true;
+    } catch (err) {
+        console.error('사진 불러오기 오류:', err);
+        statusDiv.textContent = '사진을 불러오는 중 오류 발생';
+        return false;
+    }
+}
+
+// ✅ 전체 질문 목록
+const allQuestions = [
+    "이 사진을 보시니 어떤 생각이 드시나요?",
+    "그때 기분이 어땠어요?",
+    "이 사진 속 사람은 누구인가요?",
+    "이날은 어떤 일이 있었나요?",
+    "이 장소가 어디인지 기억나시나요?",
+    "이 사진을 찍은 이유가 있으신가요?",
+    "그때 들리던 소리나 냄새가 기억나시나요?",
+    "그 시절의 나에게 한마디 해주신다면요?",
+    "이 순간을 한 단어로 표현한다면요?",
+    "이 사진을 보면 어떤 노래가 떠오르세요?",
+    "이 순간이 다시 온다면 어떤 기분일까요?",
+    "그분과 함께한 가장 기억에 남는 일은 뭐예요?",
+    "그때 계절이나 날씨는 어땠나요?",
+    "이 사진을 그림으로 그린다면 어떤 색으로 표현하고 싶으세요?"
+];
+
+// ✅ 8개 질문을 랜덤으로 선택
+function selectRandomQuestions() {
+    const questionCount = 8; // 8개 고정
+    totalQuestions = questionCount;
+
+    // 질문 섞기
+    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+
+    // 8개만 추출
+    selectedQuestions = shuffled.slice(0, questionCount);
+
+    console.log(`✅ 총 ${totalQuestions}개의 질문이 선택되었습니다.`);
+}
+
+// ✅ 다음 질문 가져오기
+function getNextQuestion() {
+    if (conversationCount >= selectedQuestions.length) {
+        return null;
+    }
+    return selectedQuestions[conversationCount];
+}
+
+// ✅ 질문하기
+function askNextQuestion() {
+    const question = getNextQuestion();
+
+    if (!question) {
+        // 모든 질문이 끝남
+        progressInfo.style.display = 'none';
+        statusDiv.textContent = "오늘의 대화를 모두 마쳤어요 💜 내일 또 만나요!";
+        listenBtn.style.display = 'none';
+        nextPhotoBtn.style.display = 'inline-block';
+        speak("오늘의 대화를 모두 마쳤어요. 내일 또 만나요!");
+        return;
+    }
+
+    updateProgress();
+    addMessage('ai', 'AI 질문 💭', question);
+    speak(question, () => {
+        listenBtn.style.display = 'inline-block';
+        listenBtn.disabled = false;
+        statusDiv.textContent = '이야기를 들려주세요 🎤';
+    });
+}
+
+// ✅ 음성 듣기 시작
+function startListening() {
+    if (!recognition) {
+        alert('음성 인식이 지원되지 않습니다.');
+        return;
+    }
+
+    recognition.start();
+    statusDiv.innerHTML = '<span class="listening">🎤 듣고 있어요...</span>';
+    listenBtn.disabled = true;
+}
+
+// ✅ 음성 인식 결과 처리
+if (recognition) {
+    recognition.onresult = async (e) => {
+        let userAnswer = e.results[0][0].transcript.trim();
+
+        // ✅ 끝에 붙는 물음표 제거 (음성인식 오류 방지)
+        if (userAnswer.endsWith('?')) {
+            userAnswer = userAnswer.slice(0, -1).trim();
+        }
+
+        addMessage('user', '내 이야기 🗣️', userAnswer);
+        statusDiv.textContent = 'AI가 생각 중이에요...';
+        listenBtn.style.display = 'none';
+
+        // AI의 랜덤 반응
+        const responses = [
+
+  "정말 따뜻한 이야기네요 💕",
+  "그 마음이 전해져요 😊",
+  "정말 멋진 기억이에요 🌟",
+  "듣기만 해도 미소가 지어져요 😄",
+  "그 시절의 감정이 참 아름다워요.",
+  "정말 행복이 느껴지는 대답이에요 💕",
+  "그때의 모습이 눈앞에 그려지는 것 같아요.",
+  "이야기를 들으니 저도 행복해지네요 😊",
+  "그 순간의 따뜻함이 전해져요.",
+  "정말 영화의 한 장면 같아요 🎬",
+  "그 시절의 분위기가 아직도 남아있네요 🌷",
+  "그때의 빛과 바람이 느껴지는 듯해요 🌿",
+  "그런 추억이 있다는 건 정말 소중하네요 💜",
+  "그렇게 기억하고 계시다니 멋져요 ✨",
+  "그때의 행복이 느껴져요 🌸"
+];
+
+
+
+        const aiResponse = responses[Math.floor(Math.random() * responses.length)];
+        addMessage('ai', 'AI 💬', aiResponse);
+
+        speak(aiResponse, () => {
+            conversationCount++;
+
+            // 다음 질문으로
+            setTimeout(() => {
+                askNextQuestion();
+            }, 1000);
+        });
+    };
+
+    recognition.onerror = (e) => {
+        console.error('음성 인식 오류:', e.error);
+        statusDiv.textContent = '음성 인식 오류가 발생했습니다. 다시 시도해주세요.';
+        listenBtn.disabled = false;
+        listenBtn.style.display = 'inline-block';
+    };
+}
+
+// ✅ 대화 시작
+async function startConversation() {
+    startBtn.disabled = true;
+
+    if (!(await loadDailyPhoto())) {
+        return;
+    }
+
+    // 질문 랜덤 선택
+    selectRandomQuestions();
+
+    startBtn.style.display = 'none';
+    addMessage('ai', 'AI 💬', '안녕하세요! 오늘의 추억 이야기를 시작해볼까요?');
+
+    speak('안녕하세요! 오늘의 추억 이야기를 시작해볼까요?', () => {
+        setTimeout(() => {
+            askNextQuestion();
+        }, 500);
+    });
+}
+
+// ✅ 이벤트 리스너
+startBtn.addEventListener('click', startConversation);
+listenBtn.addEventListener('click', startListening);
+
+nextPhotoBtn.addEventListener('click', () => {
+    location.reload(); // 페이지 새로고침하여 새로운 세션 시작
+});
+</script>
+
+</body>
+</html>

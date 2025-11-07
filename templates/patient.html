@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보호자 연결</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 배경 장식 */
+    .decorative-circle {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .circle-1 {
+      width: 400px;
+      height: 400px;
+      top: -150px;
+      right: -150px;
+      animation: float 10s ease-in-out infinite;
+    }
+
+    .circle-2 {
+      width: 300px;
+      height: 300px;
+      bottom: -100px;
+      left: -100px;
+      animation: float 15s ease-in-out infinite;
+      animation-delay: 2s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(-30px) scale(1.1);
+        opacity: 0.6;
+      }
+    }
+
+    .page-container {
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .container {
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 10px 40px rgba(124, 58, 237, 0.15);
+      padding: 45px 40px;
+      margin-bottom: 30px;
+      animation: slideUp 0.5s ease;
+      border: 3px solid #f3f4f6;
+      width:500px;
+      margin: 80px auto;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      color: #7c3aed;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 2.4em;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h3 {
+      color: #7c3aed;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 2em;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 35px;
+      font-size: 1.05em;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%);
+      border: 2px solid #e9d5ff;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .info-box-icon {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .info-box-text {
+      color: #6b7280;
+      font-size: 0.95em;
+      line-height: 1.6;
+    }
+
+    .form-row {
+      margin-bottom: 25px;
+    }
+
+    .input-label {
+      display: block;
+      color: #374151;
+      font-size: 1.05em;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 18px 22px;
+      font-size: 1.05em;
+      border: 2px solid #e9d5ff;
+      border-radius: 14px;
+      transition: all 0.3s;
+      font-family: inherit;
+      color: #1f2937;
+      background: white;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+      transform: translateY(-2px);
+    }
+
+    input::placeholder {
+      color: #9ca3af;
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      color: white;
+      border: none;
+      padding: 18px;
+      font-size: 1.2em;
+      font-weight: 700;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    button:hover::before {
+      width: 400px;
+      height: 400px;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    button span {
+      position: relative;
+      z-index: 1;
+    }
+
+    #requests-list {
+      min-height: 100px;
+    }
+
+    .request-item {
+      background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%);
+      border: 2px solid #e9d5ff;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .request-info {
+      flex: 1;
+    }
+
+    .request-id {
+      color: #7c3aed;
+      font-weight: 700;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+    }
+
+    .request-patient {
+      color: #1f2937;
+      font-size: 1.1em;
+      font-weight: 600;
+    }
+
+    .accept-btn {
+      width: auto;
+      padding: 12px 24px;
+      font-size: 1em;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .accept-btn:hover {
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .empty-message {
+      text-align: center;
+      color: #6b7280;
+      padding: 40px 20px;
+      font-size: 1.05em;
+    }
+
+    .empty-icon {
+      font-size: 3em;
+      margin-bottom: 15px;
+    }
+
+    /* 모바일 반응형 */
+    @media (max-width: 480px) {
+      .container {
+        padding: 35px 28px;
+      }
+
+      h2 {
+        font-size: 2em;
+      }
+
+      h3 {
+        font-size: 1.7em;
+      }
+
+      .request-item {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .accept-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="decorative-circle circle-1"></div>
+  <div class="decorative-circle circle-2"></div>
+
+
+
+    <!-- 요청 목록 섹션 -->
+    <div class="container">
+        <div id="back-container" style="display: none; position: absolute; top: 20px; left: 20px;">
+    <button id="back-btn" style="
+      background: #ede9fe;
+      color: #6b21a8;
+      border: 2px solid #c4b5fd;
+      padding: 8px 16px;
+      font-size: 0.9em;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(124, 58, 237, 0.15);
+    " onclick="goBackToMap()">← 뒤로</button>
+  </div>
+      <h3>📋 받은 요청 목록</h3>
+      <p class="subtitle">환자분들의 연결 요청을 확인하세요</p>
+
+      <div id="requests-list">
+        <div class="empty-message">
+          <div class="empty-icon">📭</div>
+          요청 목록을 불러오는 중...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// 페이지 로드 시 내 요청 목록 자동 불러오기
+async function loadRequests() {
+  const patientId = localStorage.getItem("user_id");
+  console.log("🩵 현재 로그인한 환자 ID:", patientId); // 확인용 로그
+
+  const list = document.getElementById("requests-list");
+  list.innerHTML = `
+    <div class="empty-message">
+      <div class="empty-icon">⏳</div>
+      요청 목록을 불러오는 중...
+    </div>`;
+
+  try {
+    const res = await fetch("/requests", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ patient_id: patientId })
+    });
+
+    const data = await res.json();
+    console.log("받은 요청 데이터:", data); // 확인용 로그
+    list.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      list.innerHTML = `
+        <div class="empty-message">
+          <div class="empty-icon">📭</div>
+          받은 요청이 없습니다
+        </div>`;
+      return;
+    }
+
+    data.forEach(req => {
+      if (req.status === "pending") {
+        const div = document.createElement("div");
+        div.className = "request-item";
+        div.innerHTML = `
+          <div class="request-info">
+            <div class="request-id">요청 #${req.request_id}</div>
+            <div class="request-patient">보호자: ${req.guardian_name}</div>
+          </div>
+          <button class="accept-btn" onclick="acceptFriend(${req.request_id})">
+            <span>수락 ✓</span>
+          </button>`;
+        list.appendChild(div);
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    list.innerHTML = `
+      <div class="empty-message">
+        <div class="empty-icon">❌</div>
+        요청 목록을 불러오는 중 오류가 발생했습니다
+      </div>`;
+  }
+}
+
+async function acceptFriend(requestId) {
+  try {
+    const res = await fetch("/accept_connection", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ request_id: requestId })
+    });
+    const result = await res.json();
+    if (res.ok) {
+      alert(result.message || "✅ 연결이 수락되었습니다!");
+      window.location.href = "/map";
+    } else {
+      alert("❌ 오류: " + (result.error || "연결 수락 중 문제가 발생했습니다."));
+    }
+  } catch (err) {
+    alert("연결 수락 중 오류가 발생했습니다.");
+    console.error(err);
+  }
+}
+
+function backToMain() { window.location.href = "/"; }
+function goBackToMap() { window.location.href = "/map"; }
+
+// ✅ onload를 하나로: 목록 불러오기 + 뒤로 버튼 표시 둘 다 실행
+window.addEventListener("load", () => {
+  loadRequests();
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("from_map") === "true") {
+    const back = document.getElementById("back-container");
+    if (back) back.style.display = "block";
+  }
+});
+      function sendLocation() {
+  const patientId = localStorage.getItem("user_id");
+  if (!patientId) return;
+
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const { latitude, longitude } = pos.coords;
+    await fetch("/update_location", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ patient_id: patientId, latitude, longitude })
+    });
+  });
+}
+
+// 30초마다 갱신
+setInterval(sendLocation, 30000);
+sendLocation();
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>낱말 맞추기 게임</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      min-height: 100vh;
+      padding: 80px 20px 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 배경 장식 */
+    .decorative-circle {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      animation: float 10s ease-in-out infinite;
+    }
+
+    .circle-1 {
+      width: 350px;
+      height: 350px;
+      top: -100px;
+      right: -100px;
+    }
+
+    .circle-2 {
+      width: 250px;
+      height: 250px;
+      bottom: -80px;
+      left: -80px;
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(-30px) scale(1.1);
+        opacity: 0.6;
+      }
+    }
+
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border: 2px solid #e9d5ff;
+      color: #7c3aed;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: all 0.3s;
+      z-index: 100;
+    }
+
+    .back-button:hover {
+      background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+      transform: translateX(-3px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+    }
+
+    .game-container {
+      max-width: 650px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 32px;
+      padding: 45px 40px;
+      box-shadow: 0 10px 40px rgba(124, 58, 237, 0.15);
+      border: 3px solid #f3f4f6;
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 30px;
+      color: #7c3aed;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .progress-bar {
+      background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%);
+      border: 2px solid #e9d5ff;
+      border-radius: 16px;
+      padding: 15px;
+      margin-bottom: 30px;
+    }
+
+    .progress-text {
+      color: #6b7280;
+      font-size: 0.95em;
+      font-weight: 600;
+    }
+
+    .quiz-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      margin-bottom: 35px;
+      flex-wrap: wrap;
+    }
+
+    .image-container {
+      background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+      border-radius: 20px;
+      padding: 20px;
+      border: 3px solid #f9a8d4;
+    }
+
+    #quiz-image {
+      max-width: 180px;
+      max-height: 180px;
+      display: block;
+      border-radius: 12px;
+    }
+
+    #question-text {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #1f2937;
+      background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
+      padding: 20px 30px;
+      border-radius: 16px;
+      border: 3px solid #fde68a;
+      min-width: 200px;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .option-btn {
+      padding: 20px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 3px solid #e9d5ff;
+      border-radius: 16px;
+      background: white;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.1);
+      color: #1f2937;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .option-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(124, 58, 237, 0.1);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .option-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .option-btn:hover {
+      transform: translateY(-5px);
+      border-color: #7c3aed;
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
+    }
+
+    .option-btn:active {
+      transform: translateY(-2px);
+    }
+
+    .option-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    #result {
+      font-size: 1.4rem;
+      margin-top: 25px;
+      min-height: 50px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      padding: 15px;
+      transition: all 0.3s;
+    }
+
+    #result.correct {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      color: #065f46;
+      border: 2px solid #34d399;
+      animation: celebrate 0.5s ease;
+    }
+
+    #result.incorrect {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      color: #991b1b;
+      border: 2px solid #f87171;
+      animation: shake 0.5s ease;
+    }
+
+    @keyframes celebrate {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.05) rotate(-2deg); }
+      75% { transform: scale(1.05) rotate(2deg); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .completion-screen {
+      display: none;
+      text-align: center;
+      padding: 60px 40px;
+    }
+
+    .completion-screen.show {
+      display: block;
+      animation: slideUp 0.5s ease;
+    }
+
+    .completion-icon {
+      font-size: 6rem;
+      margin-bottom: 30px;
+      animation: bounce 1s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .completion-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #7c3aed;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .completion-text {
+      font-size: 1.3rem;
+      color: #6b7280;
+      margin-bottom: 30px;
+    }
+
+    .replay-btn {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      color: white;
+      border: none;
+      padding: 18px 40px;
+      font-size: 1.2em;
+      font-weight: 700;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+    }
+
+    .replay-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    /* 모바일 반응형 */
+    @media (max-width: 480px) {
+      body {
+        padding: 70px 15px 30px 15px;
+      }
+
+      .game-container {
+        padding: 35px 25px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .quiz-row {
+        gap: 25px;
+      }
+
+      #quiz-image {
+        max-width: 150px;
+        max-height: 150px;
+      }
+
+      #question-text {
+        font-size: 1.8rem;
+        padding: 15px 20px;
+      }
+
+      .options {
+        grid-template-columns: 1fr;
+      }
+
+      .option-btn {
+        font-size: 1.2rem;
+        padding: 18px;
+      }
+
+      .completion-icon {
+        font-size: 4.5rem;
+      }
+
+      .completion-title {
+        font-size: 2rem;
+      }
+
+      .back-button {
+        top: 15px;
+        left: 15px;
+        padding: 6px 12px;
+        font-size: 0.85em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="decorative-circle circle-1"></div>
+  <div class="decorative-circle circle-2"></div>
+
+  <button class="back-button" onclick="location.href='game'">← 뒤로</button>
+
+  <div class="game-container">
+    <div id="quiz-screen">
+      <h1>📝 낱말 맞추기 게임</h1>
+
+      <div class="progress-bar">
+        <div class="progress-text" id="progress-text">문제 1 / 10</div>
+      </div>
+
+      <div class="quiz-row">
+        <div class="image-container">
+          <img id="quiz-image" src="" alt="문제 이미지" />
+        </div>
+        <div id="question-text">문제</div>
+      </div>
+
+      <div class="options" id="options-container"></div>
+      <div id="result"></div>
+    </div>
+
+    <div class="completion-screen" id="completion-screen">
+      <div class="completion-icon">🎉</div>
+      <div class="completion-title">참 잘했어요!</div>
+      <div class="completion-text">총 10문제를 완료했어요! 👏</div>
+      <button class="replay-btn" onclick="location.reload()">다시 하기 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    const allQuizData = [
+      { image: "/static/images/squid.png", question: "오 ? 어", options: ["충", "정", "증", "징"], answer: "징" },
+      { image: "/static/images/apple.png", question: "사 ?", options: ["고", "기", "구", "과"], answer: "과" },
+      { image: "/static/images/peach.png", question: "복 ? 아", options: ["상", "숭", "사", "신"], answer: "숭" },
+      { image: "/static/images/stick.png", question: "지 ? 이", options: ["반", "퐁", "팡", "붕"], answer: "팡" },
+      { image: "/static/images/dog.png", question: "? 아 지", options: ["강", "고", "구", "감"], answer: "강" },
+      { image: "/static/images/cat.png", question: "고 ? 이", options: ["운", "알", "양", "영"], answer: "양" },
+      { image: "/static/images/school.png", question: "학 ?", options: ["고", "교", "쿠", "코"], answer: "교" },
+      { image: "/static/images/hospital.png", question: "? 원", options: ["보", "빈", "부", "병"], answer: "병" },
+      { image: "/static/images/sp.png", question: "고 ? 마", options: ["고", "코", "구", "캐"], answer: "구" },
+      { image: "/static/images/fish.png", question: "? 고 기", options: ["불", "물", "말", "볼"], answer: "물" },
+      { image: "/static/images/fan.png", question: "선 ? 기", options: ["풍", "붕", "핀", "보"], answer: "풍" },
+      { image: "/static/images/plane.png", question: "비 ? 기", options: ["후", "행", "수", "와"], answer: "행" },
+      { image: "/static/images/corn.png", question: "옥 수 ?", options: ["사", "나", "구", "수"], answer: "수" },
+      { image: "/static/images/refri.png", question: "? 장 고", options: ["감", "남", "냉", "갱"], answer: "냉" },
+      { image: "/static/images/bicycle.png", question: "자 전 ?", options: ["거", "기", "구", "과"], answer: "거" },
+      { image: "/static/images/dolphin.png", question: "돌 ? 래", options: ["고", "나", "누", "기"], answer: "고" },
+      { image: "/static/images/elephant.png", question: "코 ? 리", options: ["쿠", "기", "끼", "코"], answer: "끼" },
+      { image: "/static/images/guitar.png", question: "기 ?", options: ["토", "타", "투", "터"], answer: "타" },
+      { image: "/static/images/walnut.png", question: "? 두", options: ["고", "호", "후", "고"], answer: "호" },
+      { image: "/static/images/family.png", question: "가 ?", options: ["자", "독", "족", "중"], answer: "족" },
+      { image: "/static/images/love.png", question: "사 ?", options: ["랑", "항", "강", "방"], answer: "랑" },
+      { image: "/static/images/parrot.png", question: "? 무 새", options: ["잉", "웅", "옹", "앵"], answer: "앵" },
+      { image: "/static/images/pine.png", question: "파 ? 애 플", options: ["운", "고", "구", "인"], answer: "인" },
+      { image: "/static/images/apart.png", question: "아 파 ?", options: ["토", "투", "트", "태"], answer: "트" }
+    ];
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    const quizData = shuffleArray([...allQuizData]).slice(0, 10);
+    let currentQuiz = 0;
+
+    function loadQuiz() {
+      const quiz = quizData[currentQuiz];
+      document.getElementById("quiz-image").src = quiz.image;
+      document.getElementById("question-text").textContent = quiz.question;
+      document.getElementById("progress-text").textContent = `문제 ${currentQuiz + 1} / 10`;
+
+      const optionsContainer = document.getElementById("options-container");
+      optionsContainer.innerHTML = "";
+
+      quiz.options.forEach((optionText, index) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerHTML = `<span>${index + 1}. ${optionText}</span>`;
+        btn.onclick = () => checkAnswer(optionText);
+        optionsContainer.appendChild(btn);
+      });
+
+      const resultEl = document.getElementById("result");
+      resultEl.textContent = "";
+      resultEl.className = "";
+    }
+
+    function checkAnswer(selected) {
+      const quiz = quizData[currentQuiz];
+      const result = document.getElementById("result");
+
+      if (selected === quiz.answer) {
+        result.textContent = "정답입니다! 🎉";
+        result.className = "correct";
+        setTimeout(() => {
+          currentQuiz++;
+          if (currentQuiz < quizData.length) {
+            loadQuiz();
+          } else {
+            document.getElementById("quiz-screen").style.display = "none";
+            document.getElementById("completion-screen").classList.add("show");
+          }
+        }, 1500);
+      } else {
+        result.textContent = "오답입니다. 다시 시도해보세요! 😊";
+        result.className = "incorrect";
+      }
+    }
+
+    loadQuiz();
+  </script>
+</body>
+</html>

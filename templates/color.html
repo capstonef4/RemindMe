@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>색깔 기억하기 게임</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 배경 장식 */
+    .decorative-circle {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      animation: float 10s ease-in-out infinite;
+    }
+
+    .circle-1 {
+      width: 350px;
+      height: 350px;
+      top: -100px;
+      right: -100px;
+    }
+
+    .circle-2 {
+      width: 250px;
+      height: 250px;
+      bottom: -80px;
+      left: -80px;
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(-30px) scale(1.1);
+        opacity: 0.6;
+      }
+    }
+
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border: none;
+      color: #7c3aed;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: all 0.3s;
+      z-index: 9999;
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+    }
+
+    .back-button:hover {
+      background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+      transform: translateX(-3px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+    }
+
+    .container {
+      background: white;
+      border-radius: 32px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(124, 58, 237, 0.15);
+      border: 3px solid #f3f4f6;
+      max-width: 700px;
+      width: 100%;
+      animation: slideUp 0.5s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 12px;
+      color: #7c3aed;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #718096;
+      font-size: 1rem;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    /* 난이도 선택 화면 */
+    .difficulty-selection {
+      display: block;
+    }
+
+    .difficulty-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      color: #2d3748;
+      margin-bottom: 24px;
+    }
+
+    .difficulty-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .difficulty-btn {
+      padding: 24px;
+      border: 3px solid transparent;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      text-align: left;
+    }
+
+    .difficulty-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .difficulty-btn.easy {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border-color: #86efac;
+    }
+
+    .difficulty-btn.easy:hover {
+      border-color: #34d399;
+    }
+
+    .difficulty-btn.medium {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-color: #fde68a;
+    }
+
+    .difficulty-btn.medium:hover {
+      border-color: #fbbf24;
+    }
+
+    .difficulty-btn.hard {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      border-color: #fecaca;
+    }
+
+    .difficulty-btn.hard:hover {
+      border-color: #f87171;
+    }
+
+    .difficulty-btn-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .difficulty-btn.easy .difficulty-btn-title {
+      color: #065f46;
+    }
+
+    .difficulty-btn.medium .difficulty-btn-title {
+      color: #92400e;
+    }
+
+    .difficulty-btn.hard .difficulty-btn-title {
+      color: #991b1b;
+    }
+
+    .difficulty-btn-desc {
+      font-size: 0.95rem;
+      opacity: 0.8;
+      line-height: 1.4;
+    }
+
+    .difficulty-btn.easy .difficulty-btn-desc {
+      color: #047857;
+    }
+
+    .difficulty-btn.medium .difficulty-btn-desc {
+      color: #b45309;
+    }
+
+    .difficulty-btn.hard .difficulty-btn-desc {
+      color: #b91c1c;
+    }
+
+    /* 게임 화면 */
+    .game-screen {
+      display: none;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%);
+      border: 2px solid #e9d5ff;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 30px;
+      text-align: center;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .info-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #7c3aed;
+    }
+
+    .game-area {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .game-area.grid-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .game-area.grid-6 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .game-area.grid-8 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .color-btn {
+      aspect-ratio: 1;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .color-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .color-btn:active {
+      transform: scale(0.95);
+    }
+
+    .color-btn.flash {
+      animation: flash 0.5s ease;
+    }
+
+    @keyframes flash {
+      0%, 100% {
+        filter: brightness(1);
+        transform: scale(1);
+      }
+      50% {
+        filter: brightness(1.5);
+        transform: scale(1.05);
+      }
+    }
+
+    .color-btn.wrong {
+      animation: shake 0.5s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+    .green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+    .yellow { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); }
+    .purple { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); }
+    .orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+    .pink { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+    .cyan { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      color: white;
+    }
+
+    .btn-start:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-start:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-back {
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    .btn-back:hover {
+      background: #cbd5e1;
+      transform: translateY(-2px);
+    }
+
+    .message {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .message.watching {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      color: #1e40af;
+      border: 2px solid #60a5fa;
+    }
+
+    .message.playing {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      color: #065f46;
+      border: 2px solid #34d399;
+    }
+
+    .message.wrong {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      color: #991b1b;
+      border: 2px solid #f87171;
+      animation: shake 0.5s ease;
+    }
+
+    .best-score {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-top: 16px;
+      font-weight: 600;
+    }
+
+    .best-score span {
+      color: #7c3aed;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .instructions {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border: 2px solid #86efac;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .instructions h3 {
+      color: #065f46;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .instructions p {
+      color: #166534;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 30px 20px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .game-area {
+        gap: 12px;
+      }
+
+      .game-area.grid-8 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .btn {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+      }
+
+      .difficulty-btn {
+        padding: 20px;
+      }
+
+      .difficulty-btn-title {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="decorative-circle circle-1"></div>
+  <div class="decorative-circle circle-2"></div>
+
+  <button class="back-button" onclick="location.href='game'">← 뒤로</button>
+
+  <div class="container">
+    <!-- 난이도 선택 화면 -->
+    <div id="difficultyScreen" class="difficulty-selection">
+      <h1>🎨 색깔 기억하기</h1>
+      <div class="subtitle">
+        깜빡이는 색깔 순서를 기억하고<br>
+        똑같이 따라 눌러보세요!
+      </div>
+
+      <div class="difficulty-title">난이도 선택</div>
+
+      <div class="difficulty-buttons">
+        <div class="difficulty-btn easy" onclick="selectDifficulty(4)">
+          <div class="difficulty-btn-title">😊 쉬움 (4가지 색깔)</div>
+          <div class="difficulty-btn-desc">
+            빨강, 파랑, 초록, 노랑 - 처음 시작하기 좋아요!
+          </div>
+        </div>
+
+        <div class="difficulty-btn medium" onclick="selectDifficulty(6)">
+          <div class="difficulty-btn-title">⚡ 보통 (6가지 색깔)</div>
+          <div class="difficulty-btn-desc">
+            6가지 색깔로 적당한 도전! 집중력이 필요해요
+          </div>
+        </div>
+
+        <div class="difficulty-btn hard" onclick="selectDifficulty(8)">
+          <div class="difficulty-btn-title">🔥 어려움 (8가지 색깔)</div>
+          <div class="difficulty-btn-desc">
+            8가지 색깔! 기억력 고수만의 도전 과제!
+          </div>
+        </div>
+      </div>
+
+      <div class="instructions">
+        <h3>📖 게임 방법</h3>
+        <p>
+          1️⃣ 원하는 난이도를 선택하세요<br>
+          2️⃣ 색깔이 순서대로 깜빡이면 잘 보세요<br>
+          3️⃣ 기억한 순서대로 색깔을 눌러주세요<br>
+          4️⃣ 정답이면 다음 레벨! 하나씩 더 늘어나요<br>
+          5️⃣ 최고 기록을 세워보세요!
+        </p>
+      </div>
+    </div>
+
+    <!-- 게임 화면 -->
+    <div id="gameScreen" class="game-screen">
+      <h1>🎨 색깔 기억하기</h1>
+      <div class="subtitle" id="difficultyLabel">
+        난이도: 쉬움 (4가지)
+      </div>
+
+      <div class="info-box">
+        <div class="info-item">
+          <div class="info-label">점수</div>
+          <div class="info-value" id="score">0</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">레벨</div>
+          <div class="info-value" id="level">1</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">최고점수</div>
+          <div class="info-value" id="bestScore">0</div>
+        </div>
+      </div>
+
+      <div class="message" id="message">
+        시작 버튼을 눌러주세요! 🎮
+      </div>
+
+      <div id="gameArea" class="game-area grid-4">
+        <!-- 색깔 버튼들이 동적으로 생성됩니다 -->
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-start" id="startBtn">🎮 게임 시작</button>
+        <button class="btn btn-back" onclick="backToMenu()">← 메뉴로</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const difficultyScreen = document.getElementById('difficultyScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const gameArea = document.getElementById('gameArea');
+    const startBtn = document.getElementById('startBtn');
+    const scoreEl = document.getElementById('score');
+    const levelEl = document.getElementById('level');
+    const messageEl = document.getElementById('message');
+    const bestScoreEl = document.getElementById('bestScore');
+    const difficultyLabel = document.getElementById('difficultyLabel');
+
+    let currentDifficulty = 4;
+    let sequence = [];
+    let userSequence = [];
+    let level = 1;
+    let score = 0;
+    let isPlaying = false;
+    let isShowingSequence = false;
+    let bestScores = {
+      4: localStorage.getItem('colorMemoryBest4') || 0,
+      6: localStorage.getItem('colorMemoryBest6') || 0,
+      8: localStorage.getItem('colorMemoryBest8') || 0
+    };
+
+    const colorSets = {
+      4: ['red', 'blue', 'green', 'yellow'],
+      6: ['red', 'blue', 'green', 'yellow', 'purple', 'orange'],
+      8: ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan']
+    };
+
+    const difficultyNames = {
+      4: '😊 쉬움 (4가지)',
+      6: '⚡ 보통 (6가지)',
+      8: '🔥 어려움 (8가지)'
+    };
+
+    function selectDifficulty(difficulty) {
+      currentDifficulty = difficulty;
+      difficultyScreen.style.display = 'none';
+      gameScreen.style.display = 'block';
+
+      difficultyLabel.textContent = '난이도: ' + difficultyNames[difficulty];
+      bestScoreEl.textContent = bestScores[difficulty];
+
+      setupGameArea(difficulty);
+    }
+
+    function backToMenu() {
+      if (isPlaying && !confirm('게임을 종료하고 메뉴로 돌아가시겠어요?')) {
+        return;
+      }
+
+      gameScreen.style.display = 'none';
+      difficultyScreen.style.display = 'block';
+      resetGame();
+    }
+
+    function setupGameArea(difficulty) {
+      gameArea.innerHTML = '';
+      gameArea.className = 'game-area grid-' + difficulty;
+
+      const colors = colorSets[difficulty];
+      colors.forEach(color => {
+        const btn = document.createElement('button');
+        btn.className = 'color-btn ' + color;
+        btn.dataset.color = color;
+        btn.addEventListener('click', () => handleColorClick(color));
+        gameArea.appendChild(btn);
+      });
+    }
+
+    function resetGame() {
+      sequence = [];
+      userSequence = [];
+      level = 1;
+      score = 0;
+      isPlaying = false;
+      isShowingSequence = false;
+      updateDisplay();
+      showMessage('시작 버튼을 눌러주세요! 🎮', '');
+      startBtn.disabled = false;
+    }
+
+    function updateDisplay() {
+      scoreEl.textContent = score;
+      levelEl.textContent = level;
+    }
+
+    function showMessage(text, type = '') {
+      messageEl.textContent = text;
+      messageEl.className = 'message ' + type;
+    }
+
+    async function startGame() {
+      sequence = [];
+      userSequence = [];
+      level = 1;
+      score = 0;
+      isPlaying = true;
+      updateDisplay();
+      startBtn.disabled = true;
+
+      await nextRound();
+    }
+
+    async function nextRound() {
+      userSequence = [];
+
+      const colors = colorSets[currentDifficulty];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      sequence.push(randomColor);
+
+      showMessage('잘 보세요! 👀', 'watching');
+
+      await sleep(1000);
+      await showSequence();
+
+      showMessage('이제 따라해보세요! 🎯', 'playing');
+    }
+
+    async function showSequence() {
+      isShowingSequence = true;
+
+      for (let color of sequence) {
+        await sleep(200);
+        flashColor(color);
+        await sleep(600);
+      }
+
+      isShowingSequence = false;
+    }
+
+    function flashColor(color) {
+      const btn = document.querySelector(`[data-color="${color}"]`);
+      btn.classList.add('flash');
+
+      playSound(color);
+
+      setTimeout(() => {
+        btn.classList.remove('flash');
+      }, 500);
+    }
+
+    function playSound(color) {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      const frequencies = {
+        red: 261.63,
+        blue: 329.63,
+        green: 392.00,
+        yellow: 523.25,
+        purple: 440.00,
+        orange: 493.88,
+        pink: 587.33,
+        cyan: 659.25
+      };
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.frequency.value = frequencies[color];
+      oscillator.type = 'sine';
+
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function handleColorClick(color) {
+      if (!isPlaying || isShowingSequence) return;
+
+      flashColor(color);
+      userSequence.push(color);
+
+      const currentIndex = userSequence.length - 1;
+
+      if (userSequence[currentIndex] !== sequence[currentIndex]) {
+        await gameOver();
+        return;
+      }
+
+      if (userSequence.length === sequence.length) {
+        score += level * 10;
+        level++;
+        updateDisplay();
+
+        showMessage('정답입니다! 🎉', 'playing');
+        await sleep(1000);
+        await nextRound();
+      }
+    }
+
+    async function gameOver() {
+      isPlaying = false;
+
+      showMessage('틀렸어요! 😢 게임 종료', 'wrong');
+
+      if (score > bestScores[currentDifficulty]) {
+        bestScores[currentDifficulty] = score;
+        localStorage.setItem('colorMemoryBest' + currentDifficulty, score);
+        bestScoreEl.textContent = score;
+
+        await sleep(1000);
+        showMessage('🏆 신기록 달성! ' + score + '점!', 'playing');
+      }
+
+      startBtn.disabled = false;
+
+      const wrongBtn = document.querySelector(`[data-color="${userSequence[userSequence.length - 1]}"]`);
+      if (wrongBtn) {
+        wrongBtn.classList.add('wrong');
+        setTimeout(() => wrongBtn.classList.remove('wrong'), 500);
+      }
+    }
+
+    startBtn.addEventListener('click', startGame);
+  </script>
+</body>
+</html>

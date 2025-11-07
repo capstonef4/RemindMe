@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>환자 연결 신청</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 배경 장식 */
+    .decorative-circle {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .circle-1 {
+      width: 400px;
+      height: 400px;
+      top: -150px;
+      right: -150px;
+    }
+
+    .circle-2 {
+      width: 300px;
+      height: 300px;
+      bottom: -100px;
+      left: -100px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 10px 40px rgba(124, 58, 237, 0.15);
+      max-width: 500px;
+      width: 100%;
+      padding: 45px 40px;
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.5s ease;
+      border: 3px solid #f3f4f6;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .back-button {
+      position: absolute;
+      top: 25px;
+      left: 25px;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border: 2px solid #e9d5ff;
+      color: #7c3aed;
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1.05em;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .back-button:hover {
+      background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+      transform: translateX(-3px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+    }
+
+    h2 {
+      color: #7c3aed;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 2.2em;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-top: 25px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 40px;
+      font-size: 1.05em;
+    }
+
+    .input-group {
+      margin-bottom: 25px;
+    }
+
+    .input-label {
+      display: block;
+      color: #374151;
+      font-size: 1.05em;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 16px 20px;
+      font-size: 1.05em;
+      border: 2px solid #e9d5ff;
+      border-radius: 14px;
+      transition: all 0.3s;
+      font-family: inherit;
+      color: #1f2937;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+      transform: translateY(-2px);
+    }
+
+    input[type="text"]::placeholder {
+      color: #9ca3af;
+    }
+
+    .submit-button {
+      width: 100%;
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      color: white;
+      border: none;
+      padding: 18px;
+      font-size: 1.2em;
+      font-weight: 700;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .submit-button:hover::before {
+      width: 400px;
+      height: 400px;
+    }
+
+    .submit-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    .submit-button:active {
+      transform: translateY(-1px);
+    }
+
+    .submit-button span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%);
+      border: 2px solid #e9d5ff;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .info-box-icon {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .info-box-text {
+      color: #6b7280;
+      font-size: 0.95em;
+      line-height: 1.6;
+    }
+
+    /* 모바일 반응형 */
+    @media (max-width: 480px) {
+      .container {
+        padding: 35px 25px;
+      }
+
+      h2 {
+        font-size: 1.8em;
+      }
+
+      .back-button {
+        padding: 8px 14px;
+        font-size: 0.95em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="decorative-circle circle-1"></div>
+  <div class="decorative-circle circle-2"></div>
+
+  <div class="container" id="friend-request-screen">
+    <button class="back-button" onclick="goBack('guardian-screen', 'friend-request-screen')">
+      ← 뒤로
+    </button>
+
+    <h2>🤝 환자 연결 신청</h2>
+    <p class="subtitle">환자분과 연결하여 소중한 추억을 함께 나눠보세요</p>
+
+    <div class="info-box">
+      <div class="info-box-icon">💜</div>
+      <div class="info-box-text">
+        환자분의 정보를 입력하시면<br>
+        연결 요청이 전송됩니다
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">
+        <span>👤</span> 환자 이름
+      </label>
+      <input type="text" id="request-name" placeholder="예: 홍길동">
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">
+        <span>📱</span> 환자 전화번호
+      </label>
+      <input type="text" id="request-phone" placeholder="예: 010-1234-5678">
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">
+        <span>🆔</span> 환자 아이디
+      </label>
+    <div class="input-wrapper">
+      <input type="text" id="patient-id" placeholder="예: patient123" class="has-icon">
+    </div>
+
+    <button class="submit-button" onclick="sendFriendRequest()">
+      <span>연결 신청 보내기 🚀</span>
+    </button>
+  </div>
+
+  <script>
+    function goBack(showScreen, hideScreen) {
+      // 뒤로가기 로직 (기존 페이지로 이동)
+      window.history.back();
+    }
+
+    async function sendFriendRequest() {
+      const guardianPhone = document.getElementById("guardian-phone")?.value;
+      const patientPhone = document.getElementById("request-phone").value;
+      const patientName = document.getElementById("request-name").value;
+
+      // 입력 검증
+      if (!patientName || !patientPhone) {
+        alert("환자 이름과 전화번호를 모두 입력해주세요.");
+        return;
+      }
+
+      // 전화번호 형식 간단 검증
+      const phoneRegex = /^\d{3}-?\d{3,4}-?\d{4}$/;
+      if (!phoneRegex.test(patientPhone)) {
+        alert("올바른 전화번호 형식을 입력해주세요.\n예: 010-1234-5678");
+        return;
+      }
+
+      try {
+        // guardian_id 조회 (세션에서 가져오는 것이 더 안전)
+        let guardianId;
+        if (guardianPhone) {
+          const guardianRes = await fetch("/get_user_by_phone", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone: guardianPhone })
+          });
+          const guardianData = await guardianRes.json();
+          if (guardianData.error) {
+            alert("보호자 정보를 찾을 수 없습니다: " + guardianData.error);
+            return;
+          }
+          guardianId = guardianData.user_id;
+        } else {
+          // 세션에서 가져오기 (로그인된 사용자)
+          guardianId = localStorage.getItem('user_id'); // 또는 세션 사용
+        }
+
+        // patient_id 조회
+        const patientRes = await fetch("/get_user_by_phone", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: patientPhone })
+        });
+        const patientData = await patientRes.json();
+        if (patientData.error) {
+          alert("환자 정보를 찾을 수 없습니다.\n전화번호를 다시 확인해주세요.");
+          return;
+        }
+
+        // 연결 요청 보내기
+        const res = await fetch("/request_connection", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            guardian_id: guardianId,
+            patient_id: patientData.user_id
+          })
+        });
+        const data = await res.json();
+
+        if (data.message) {
+          alert("✅ " + data.message);
+          // 입력 필드 초기화
+          document.getElementById("request-name").value = "";
+          document.getElementById("request-phone").value = "";
+        } else {
+          alert("연결 요청이 완료되었습니다!");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ 연결 요청 중 오류가 발생했습니다.\n다시 시도해주세요.");
+      }
+    }
+  </script>
+</body>
+</html>

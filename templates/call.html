@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보호자 전화 수신</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 100px;
+      margin-top: 50px;
+    }
+
+    body {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      font-family: 'Noto Sans KR', sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 40px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 배경 장식 원들 */
+    .decorative-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      pointer-events: none;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .circle-1 {
+      width: 300px;
+      height: 300px;
+      top: -100px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+
+    .circle-2 {
+      width: 200px;
+      height: 200px;
+      bottom: -50px;
+      left: -50px;
+      animation-delay: 2s;
+    }
+
+    .circle-3 {
+      width: 150px;
+      height: 150px;
+      top: 50%;
+      left: -75px;
+      animation-delay: 4s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(-30px) rotate(180deg);
+        opacity: 0.6;
+      }
+    }
+
+    .call-container {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: slideUp 0.6s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 전화 아이콘 애니메이션 */
+    .phone-icon {
+      width: 120px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 4rem;
+      margin-bottom: 30px;
+      animation: pulse-ring 2s ease-in-out infinite;
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5);
+      }
+      50% {
+        box-shadow: 0 0 0 30px rgba(255, 255, 255, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+      }
+    }
+
+    .caller-info {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .caller-label {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    .caller-name {
+      font-size: 4rem;
+      font-weight: 800;
+      color: white;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      margin-bottom: 15px;
+      letter-spacing: -1px;
+    }
+
+    .caller-number {
+      font-size: 1.3rem;
+      opacity: 0.85;
+      font-weight: 300;
+    }
+
+    .status-text {
+      background: rgba(255, 255, 255, 0.25);
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      backdrop-filter: blur(10px);
+      margin-bottom: 80px;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+      display: flex;
+      gap: 100px;
+      margin-top: 50px;
+    }
+
+    .btn-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.3s;
+    }
+
+    .btn-wrapper:hover {
+      transform: translateY(-10px);
+    }
+
+    .btn {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      color: white;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:active::before {
+      width: 200px;
+      height: 200px;
+    }
+
+    .btn-red {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .btn-red:hover {
+      box-shadow: 0 12px 40px rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-green {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .btn-green:hover {
+      box-shadow: 0 12px 40px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-text {
+      text-align: center;
+      font-size: 1.15rem;
+      margin-top: 18px;
+      font-weight: 600;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      letter-spacing: 0.5px;
+    }
+
+    .btn span {
+      position: relative;
+      z-index: 1;
+    }
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border: 2px solid #e9d5ff;
+      color: #7c3aed;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: all 0.3s;
+      z-index: 100;
+    }
+
+    .back-button:hover {
+      background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+      transform: translateX(-3px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+    }
+
+    /* 모바일 반응형 */
+    @media (max-width: 480px) {
+      .caller-name {
+        font-size: 3rem;
+      }
+
+      .buttons {
+        gap: 60px;
+      }
+
+      .btn {
+        width: 90px;
+        height: 90px;
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="decorative-circle circle-1"></div>
+  <div class="decorative-circle circle-2"></div>
+  <div class="decorative-circle circle-3"></div>
+  <button class="back-button" onclick="location.href='map'">← 뒤로</button>
+
+  <div class="call-container">
+    <div class="phone-icon">📱</div>
+
+    <div class="caller-info">
+      <div class="caller-label">전화 연결 중</div>
+      <div class="caller-name">보호자</div>
+      <div class="caller-number">010-1234-5678</div>
+    </div>
+
+    <div class="status-text">💜 전화 연결 중입니다...</div>
+  </div>
+
+  <script>
+    // 페이지 로드 시 바로 전화 걸기
+    window.onload = function() {
+      window.location.href = 'tel:01012345678';
+    };
+  </script>
+</body>
+</html>

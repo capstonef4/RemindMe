@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>치매예방게임</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 배경 장식 */
+    .decorative-circle {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      animation: float 10s ease-in-out infinite;
+    }
+
+    .circle-1 {
+      width: 350px;
+      height: 350px;
+      top: -100px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+
+    .circle-2 {
+      width: 250px;
+      height: 250px;
+      bottom: -80px;
+      left: -80px;
+      animation-delay: 3s;
+    }
+
+    .circle-3 {
+      width: 180px;
+      height: 180px;
+      top: 40%;
+      right: 10%;
+      animation-delay: 6s;
+    }
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border: 2px solid #e9d5ff;
+      color: #7c3aed;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: all 0.3s;
+      z-index: 100;
+    }
+
+    .back-button:hover {
+      background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+      transform: translateX(-3px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(-30px) scale(1.1);
+        opacity: 0.6;
+      }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      animation: slideUp 0.6s ease;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #7c3aed;
+      letter-spacing: -1px;
+      text-shadow: 2px 2px 4px rgba(124, 58, 237, 0.1);
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: #6b7280;
+      margin-bottom: 35px;
+      font-weight: 500;
+    }
+
+    .game-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .game-card {
+      background: white;
+      border-radius: 22px;
+      padding: 30px 40px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 8px 30px rgba(124, 58, 237, 0.12);
+      border: 3px solid #f3f4f6;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.1), transparent);
+      transition: left 0.6s;
+    }
+
+    .game-card:hover::before {
+      left: 100%;
+    }
+
+    .game-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 15px 45px rgba(124, 58, 237, 0.25);
+      border-color: #e9d5ff;
+    }
+
+    .game-card:active {
+      transform: translateY(-5px) scale(1);
+    }
+
+    .game-icon {
+      font-size: 3.5rem;
+      margin-bottom: 15px;
+      display: block;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .game-card:nth-child(1) .game-icon {
+      animation-delay: 0s;
+    }
+
+    .game-card:nth-child(2) .game-icon {
+      animation-delay: 0.3s;
+    }
+
+    .game-card:nth-child(3) .game-icon {
+      animation-delay: 0.6s;
+    }
+
+    .game-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+
+    .game-description {
+      font-size: 0.95rem;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .game-card-1 {
+      background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
+    }
+
+    .game-card-2 {
+      background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+    }
+
+    .game-card-3 {
+      background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+    }
+    .game-card-4 {
+      background: linear-gradient(135deg, #ddd6fe 0%, #e9d5ff 100%);
+    }
+
+    a {
+      text-decoration: none;
+      display: block;
+      width: 100%;
+    }
+
+    /* 반짝이는 배지 */
+    .new-badge {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    /* 모바일 반응형 */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      .subtitle {
+        font-size: 1.05rem;
+        margin-bottom: 35px;
+      }
+
+      .game-card {
+        padding: 28px 35px;
+        max-width: 340px;
+      }
+
+      .game-icon {
+        font-size: 3.5rem;
+      }
+
+      .game-title {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="decorative-circle circle-1"></div>
+  <div class="decorative-circle circle-2"></div>
+  <div class="decorative-circle circle-3"></div>
+  <div class="container" id="friend-request-screen">
+      <button class="back-button" onclick="location.href='map'">← 뒤로</button>
+  <div class="container">
+    <h1>🧠 치매 예방 게임</h1>
+    <p class="subtitle">두뇌를 건강하게! 재미있게 게임하세요</p>
+
+    <div class="game-grid">
+      <a href="rock">
+        <div class="game-card game-card-1">
+          <span class="game-icon">✊✋✌️</span>
+          <div class="game-title">가위바위보</div>
+          <div class="game-description">신나는 가위바위보 대결</div>
+        </div>
+      </a>
+
+      <a href="math">
+        <div class="game-card game-card-2">
+          <span class="game-icon">🧮</span>
+          <div class="game-title">수학문제 풀기</div>
+          <div class="game-description">간단한 계산으로 두뇌 활성화</div>
+        </div>
+      </a>
+
+      <a href="word">
+        <div class="game-card game-card-3">
+          <span class="game-icon">📝</span>
+          <div class="game-title">낱말 맞추기</div>
+          <div class="game-description">재미있는 단어 퀴즈에 도전하세요</div>
+        </div>
+      </a>
+        <a href="color">
+        <div class="game-card game-card-4">
+          <span class="game-icon">🌈</span>
+          <div class="game-title">색깔 맞추기</div>
+          <div class="game-description">깜빡이는 색깔 순서를 기억하고 똑같이 따라 눌러보세요</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+</body>
+</html>

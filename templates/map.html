@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>메인 지도 화면</title>
+
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+    #map {
+      height: 100%;
+      position: absolute;
+      width: 100%;
+      z-index: 0;
+    }
+    .button-container {
+      position: absolute;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .top-buttons {
+      top: 0;
+    }
+    .bottom-buttons {
+      bottom: 0;
+    }
+    .button {
+      background-color: #d2c2e0;
+      color: white;
+      padding: 10px 20px;
+      border:none;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .btn-img {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- 상단 버튼들 -->
+  <div class="button-container top-buttons">
+  <button class="btn-img" onclick="location.href='call'">
+    <img src="../static/images/call.png" alt="보호자 연락">
+  </button>
+
+  <!-- ✅ 역할에 따라 guardian.html 또는 patient.html로 이동 -->
+  <button class="btn-img" onclick="openConnectionPage()">
+    <img src="../static/images/connection.png" alt="보호자/환자 연결">
+  </button>
+</div>
+
+
+  <!-- 하단 버튼들 -->
+  <div class="button-container bottom-buttons">
+    <button class="btn-img" onclick="location.href='game'">
+      <img src="../static/images/game.png" alt="게임">
+    </button>
+    <button class="btn-img" onclick="location.href='exercise'">
+      <img src="../static/images/exercise.png" alt="운동">
+    </button>
+    <button class="btn-img" onclick="goToAlbum()">
+      <img src="../static/images/album.png" alt="앨범">
+    </button>
+  </div>
+
+
+  <!-- 카카오맵 SDK -->
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=92be7b866008713a48c218e17c42597e&&libraries=services"></script>
+
+<script>
+  // 앨범 버튼 클릭 시 역할에 따라 다른 페이지로 이동
+  function goToAlbum() {
+    // localStorage에서 사용자 역할 가져오기
+    const userRole = localStorage.getItem('role');
+
+    if (userRole === 'patient') {
+      // 환자면 대화 페이지로
+      location.href = '/memory_conversation';
+    } else if (userRole === 'guardian') {
+      // 보호자면 업로드 페이지로
+      location.href = '/memory_upload';
+    } else {
+      // 역할 정보가 없으면 로그인 페이지로
+      alert('로그인이 필요합니다.');
+      location.href = '/login';
+    }
+  }
+
+  function initMap() {
+    const mapContainer = document.getElementById('map');
+    const mapOption = {
+      center: new kakao.maps.LatLng(37.5665, 126.9780),
+      level: 4
+    };
+    const map = new kakao.maps.Map(mapContainer, mapOption);
+
+    // 사용자 위치 마커
+    navigator.geolocation.getCurrentPosition(function(position) {
+  const lat = position.coords.latitude;
+  const lon = position.coords.longitude;
+  const locPosition = new kakao.maps.LatLng(lat, lon);
+
+  // 사용자 위치 마커
+  const markerImage = new kakao.maps.MarkerImage('/static/images/loc.png', new kakao.maps.Size(40, 40));
+  new kakao.maps.Marker({
+    map: map,
+    position: locPosition,
+    image: markerImage
+  });
+
+  map.setCenter(locPosition);
+
+  // 장소 검색 객체 생성
+  const ps = new kakao.maps.services.Places();
+
+  const infowindow = new kakao.maps.InfoWindow();
+  let openedMarker = null;  // 현재 열린 마커 추적
+
+
+
+  ps.keywordSearch('병원', function(data, status) {
+    if (status === kakao.maps.services.Status.OK) {
+      for (let i = 0; i < data.length; i++) {
+        const place = data[i];
+        const pos = new kakao.maps.LatLng(place.y, place.x);
+
+        const marker = new kakao.maps.Marker({
+          map: map,
+          position: pos,
+          image: new kakao.maps.MarkerImage('/static/images/hos.png', new kakao.maps.Size(32, 32))
+        });
+
+        const content = `
+          <div style="padding:15px; font-size:16px; line-height:1.6; min-width:250px; max-width:300px;">
+            <strong style="font-size:18px;">${place.place_name}</strong><br>
+            주소: ${place.road_address_name || place.address_name}<br>
+            전화: ${place.phone || '정보 없음'}
+          </div>
+        `;
+
+        // 마커 클릭 이벤트
+        kakao.maps.event.addListener(marker, 'click', function () {
+          if (openedMarker === marker) {
+            infowindow.close();
+            openedMarker = null;
+          } else {
+            infowindow.setContent(content);
+            infowindow.open(map, marker);
+            openedMarker = marker;
+          }
+        });
+      }
+    }
+  }, { location: locPosition });
+
+  // 주변 경찰서 검색
+  ps.keywordSearch('경찰서', function(data, status) {
+    if (status === kakao.maps.services.Status.OK) {
+      for (let i = 0; i < data.length; i++) {
+        const place = data[i];
+        const pos = new kakao.maps.LatLng(place.y, place.x);
+        new kakao.maps.Marker({
+          map: map,
+          position: pos,
+          image: new kakao.maps.MarkerImage('/static/images/pol.png', new kakao.maps.Size(32, 32))
+        });
+      }
+    }
+  }, { location: locPosition });
+  showPatientLocations(map);
+});
+
+
+  }
+
+  // ✅ 여기서 initMap 호출!
+  kakao.maps.load(function () {
+    initMap();
+  });
+  async function showPatientLocations(map) {
+  const guardianId = localStorage.getItem("user_id");
+  if (!guardianId) return;
+
+  const res = await fetch(`/get_patient_locations?guardian_id=${guardianId}`);
+  const data = await res.json();
+
+  data.locations.forEach(p => {
+    const pos = new kakao.maps.LatLng(p.latitude, p.longitude);
+    const marker = new kakao.maps.Marker({
+      map: map,
+      position: pos,
+      image: new kakao.maps.MarkerImage('/static/images/patient_marker.png', new kakao.maps.Size(40, 40))
+    });
+
+    const infowindow = new kakao.maps.InfoWindow({
+      content: `<div style="padding:10px;font-size:14px;">👤 ${p.user_name}<br>${p.updated_at}</div>`
+    });
+    kakao.maps.event.addListener(marker, 'click', () => infowindow.open(map, marker));
+  });
+}
+
+  // 로그인된 보호자 ID 가져오기
+const guardianId = localStorage.getItem("user_id");
+
+// 연결된 환자 목록 불러오기
+async function loadConnectedPatients() {
+  try {
+    const res = await fetch("/map_connections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ guardian_id: guardianId })
+    });
+    const patients = await res.json();
+
+
+
+    // 목록 출력 (예: 콘솔 또는 지도에 표시)
+    patients.forEach(p => {
+      console.log(`연결된 환자: ${p.user_name} (${p.user_phone})`);
+      // TODO: 여기에 지도 marker 표시 코드 넣기 가능!
+    });
+  } catch (err) {
+    console.error("환자 목록 불러오기 오류:", err);
+  }
+}
+<!-- map.html 안에 있는 JS 부분에 추가 -->
+
+function openConnectionPage() {
+  const role = localStorage.getItem("role");
+  if (!role) {
+    alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
+    return;
+  }
+
+  // 역할에 따라 이동
+  if (role === "guardian") {
+    window.location.href = "/guardian?from_map=true";
+  } else if (role === "patient") {
+    window.location.href = "/patient?from_map=true";
+  }
+}
+
+
+
+// 페이지 로드 시 자동 실행
+window.onload = loadConnectedPatients;
+
+
+  </script>
+</body>
+</html>

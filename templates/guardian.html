@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>환자 정보 입력</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 배경 장식 */
+    .decorative-circle {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .circle-1 {
+      width: 400px;
+      height: 400px;
+      top: -150px;
+      right: -150px;
+    }
+
+    .circle-2 {
+      width: 300px;
+      height: 300px;
+      bottom: -100px;
+      left: -100px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 10px 40px rgba(124, 58, 237, 0.15);
+      max-width: 500px;
+      width: 100%;
+      padding: 50px 45px;
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.5s ease;
+      border: 3px solid #f3f4f6;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      color: #7c3aed;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 2.4em;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 40px;
+      font-size: 1.05em;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%);
+      border: 2px solid #e9d5ff;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 35px;
+      text-align: center;
+    }
+
+    .info-box-icon {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .info-box-text {
+      color: #6b7280;
+      font-size: 0.95em;
+      line-height: 1.6;
+    }
+
+    .form-row {
+      margin-bottom: 25px;
+    }
+
+    .input-label {
+      display: block;
+      color: #374151;
+      font-size: 1.05em;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 18px 22px;
+      font-size: 1.05em;
+      border: 2px solid #e9d5ff;
+      border-radius: 14px;
+      transition: all 0.3s;
+      font-family: inherit;
+      color: #1f2937;
+      background: white;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+      transform: translateY(-2px);
+    }
+
+    input[type="text"]::placeholder {
+      color: #9ca3af;
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      color: white;
+      border: none;
+      padding: 20px;
+      font-size: 1.25em;
+      font-weight: 700;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    button:hover::before {
+      width: 400px;
+      height: 400px;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    button:active {
+      transform: translateY(-1px);
+    }
+
+    button span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 입력 필드 아이콘 스타일 */
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.3em;
+      pointer-events: none;
+    }
+
+    .has-icon {
+      padding-left: 55px;
+    }
+
+    /* 모바일 반응형 */
+    @media (max-width: 480px) {
+      .container {
+        padding: 40px 30px;
+      }
+
+      h2 {
+        font-size: 2em;
+      }
+
+      input[type="text"] {
+        padding: 16px 20px;
+      }
+
+      .has-icon {
+        padding-left: 50px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="decorative-circle circle-1"></div>
+  <div class="decorative-circle circle-2"></div>
+
+
+
+  <div class="container">
+      <div id="back-container" style="display: none; position: absolute; top: 20px; left: 20px;">
+    <button id="back-btn" style="
+      background: #ede9fe;
+      color: #6b21a8;
+      border: 2px solid #c4b5fd;
+      padding: 8px 16px;
+      font-size: 0.9em;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(124, 58, 237, 0.15);
+    " onclick="goBackToMap()">← 뒤로</button>
+  </div>
+    <h2>👤 환자 정보 입력</h2>
+    <p class="subtitle">환자분의 정보를 입력해주세요</p>
+
+    <div class="info-box">
+      <div class="info-box-icon">💜</div>
+      <div class="info-box-text">
+        연결하실 환자분의 정보를<br>
+        정확하게 입력해주세요
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="input-label">
+        <span>👤</span> 환자 이름
+      </label>
+      <div class="input-wrapper">
+        <input type="text" id="patient-name" placeholder="예: 홍길동" class="has-icon">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="input-label">
+        <span>📱</span> 환자 전화번호
+      </label>
+      <div class="input-wrapper">
+        <input type="text" id="patient-phone" placeholder="예: 010-1234-5678" class="has-icon">
+
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="input-label">
+        <span>🆔</span> 환자 아이디
+      </label>
+      <div class="input-wrapper">
+        <input type="text" id="patient-id" placeholder="예: patient123" class="has-icon">
+
+      </div>
+    </div>
+
+    <button onclick="goToFriendRequest()">
+      <span>확인 ✓</span>
+    </button>
+  </div>
+
+  <script>
+    async function goToFriendRequest() {
+  const name = document.getElementById('patient-name').value.trim();
+  const phone = document.getElementById('patient-phone').value.trim();
+  const id = document.getElementById('patient-id').value.trim();
+
+  if (!name || !phone || !id) {
+    alert('⚠️ 모든 정보를 입력해주세요.');
+    return;
+  }
+
+  const phoneRegex = /^\d{3}-?\d{3,4}-?\d{4}$/;
+  if (!phoneRegex.test(phone)) {
+    alert('⚠️ 올바른 전화번호 형식을 입력해주세요.\n예: 010-1234-5678');
+    return;
+  }
+
+  try {
+    // 1️⃣ 환자 전화번호로 patient_id 가져오기
+    const userRes = await fetch("/get_user_by_phone", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: phone })
+    });
+
+    const patientData = await userRes.json();
+    if (!userRes.ok || !patientData.user_id) {
+      alert("❌ 해당 전화번호의 환자를 찾을 수 없습니다.");
+      return;
+    }
+
+    // 2️⃣ 로그인한 보호자 ID 불러오기 (로그인 시 저장된 값)
+    const guardianId = localStorage.getItem("user_id");
+
+    // 3️⃣ 실제 연결 요청 보내기
+    const res = await fetch("/request_connection", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        guardian_id: guardianId,
+        patient_id: patientData.user_id
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("✅ 환자 연결 신청 완료!");
+      window.location.href = "/map";
+    } else {
+      alert("❌ 연결 신청 실패: " + (data.error || "서버 오류"));
+    }
+
+  } catch (error) {
+    console.error(error);
+    alert("❌ 서버 오류가 발생했습니다.");
+  }
+}
+
+// 엔터키로 제출
+document.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    goToFriendRequest();
+  }
+});
+
+function goBackToMap() {
+  window.location.href = "/map";
+}
+
+// URL에 from_map=true 있으면 “뒤로가기 버튼” 보이게
+window.onload = function() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("from_map") === "true") {
+    document.getElementById("back-container").style.display = "block";
+  }
+};
+
+
+  </script>
+</body>
+</html>
