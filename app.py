@@ -7,7 +7,7 @@ import os
 from datetime import date, datetime
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY")
+app.secret_key = os.getenv("SECRET_KEY", "default-secret-key")
 
 # 사진 업로드 설정
 UPLOAD_FOLDER = 'static/uploads/photos'
@@ -18,14 +18,20 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 def get_db_connection():
-    conn = mysql.connector.connect(
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASS"),
-        database=os.getenv("DB_NAME")
-    )
-    return conn
+    try:
+        conn = mysql.connector.connect(
+            host=os.getenv("DB_HOST"),
+            port=int(os.getenv("DB_PORT")),   # 포트는 숫자로 변환!
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASS"),
+            database=os.getenv("DB_NAME")
+        )
+        print("✅ DB 연결 성공")
+        return conn
+    except Exception as e:
+        print("❌ DB 연결 실패:", e)
+        return None
+
 
 
 def allowed_file(filename):
@@ -103,6 +109,7 @@ def memory_conversation_page(): return render_template('memory_conversation.html
 
 
 # ------------------------------------
+# ------------------------------------
 # 회원가입
 @app.route("/add_user", methods=["POST"])
 def add_user():
@@ -110,18 +117,21 @@ def add_user():
         data = request.json
         user_name = data.get("user_name")
         user_phone = data.get("user_phone")
-        user_login_id = data.get("user_login_id")
+        user_id_login = data.get("user_id_login")  # ✅ DB 컬럼 이름과 맞게 수정
         user_password = data.get("user_password")
         role = data.get("role")
 
+        # 비밀번호 해싱
         password_hash = bcrypt.hashpw(user_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
         conn = get_db_connection()
         cursor = conn.cursor()
+
         cursor.execute("""
-            INSERT INTO users (user_name, user_phone, user_login_id, user_password, role)
+            INSERT INTO users (user_name, user_phone, user_id_login, user_password, role)
             VALUES (%s, %s, %s, %s, %s)
-        """, (user_name, user_phone, user_login_id, password_hash, role))
+        """, (user_name, user_phone, user_id_login, password_hash, role))
+
         conn.commit()
         conn.close()
         return jsonify({"message": "회원가입 성공!"})
@@ -136,12 +146,12 @@ def add_user():
 def do_login():
     try:
         data = request.json
-        user_login_id = data.get("user_login_id")
+        user_id_login = data.get("user_id_login")  # ✅ 컬럼 이름 맞춤
         user_password = data.get("user_password")
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE user_login_id=%s", (user_login_id,))
+        cursor.execute("SELECT * FROM users WHERE user_id_login=%s", (user_id_login,))
         user = cursor.fetchone()
         conn.close()
 
@@ -155,7 +165,8 @@ def do_login():
             return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다"}), 401
     except Exception as e:
         print("로그인 오류:", e)
-        return jsonify({"error": "서버 오류"}), 500
+        return jsonify({"error": str(e)}), 500
+
 
 
 # ------------------------------------
