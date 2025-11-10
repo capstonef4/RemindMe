@@ -333,6 +333,12 @@
 
     // 2️⃣ 로그인한 보호자 ID 불러오기 (로그인 시 저장된 값)
     const guardianId = localStorage.getItem("user_id");
+if (!guardianId) {
+  alert("로그인이 필요합니다.");
+  location.href = "/login";
+  return;
+}
+
 
     // 3️⃣ 실제 연결 요청 보내기
     const res = await fetch("/request_connection", {

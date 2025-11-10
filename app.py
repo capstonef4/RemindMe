@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify, session, render_template
+from flask import Flask, request, jsonify, session, render_template, redirect
+
 from werkzeug.utils import secure_filename
 import mysql.connector
 import bcrypt
@@ -60,7 +61,14 @@ def patient_page(): return render_template('patient.html')
 
 
 @app.route('/map')
-def map_page(): return render_template('map.html')
+def map_page():
+    # 로그인 세션이 없으면 로그인 페이지로 리디렉션
+    if "user_id" not in session:
+        print("❌ 로그인되지 않은 접근 감지 — /map으로 진입 차단")
+        return redirect("/login")
+
+    print("🟢 로그인된 사용자:", session.get("user_id"), session.get("role"))
+    return render_template('map.html')
 
 
 @app.route('/call')
@@ -152,73 +160,71 @@ def add_user():
 
 # ------------------------------------
 # 로그인
-@app.route("/login", methods=["POST"])
-def login():
-    try:
-        data = request.json
-        user_id_login = data.get("user_id_login")
-        user_password = data.get("user_password")
+@app.route('/do_login', methods=['POST'])
+def do_login():
+    data = request.get_json()
+    user_id_login = data.get("id")
+    password = data.get("password")
 
+    try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-
-        # 1️⃣ 아이디로 사용자 검색
         cursor.execute("SELECT * FROM users WHERE user_id_login = %s", (user_id_login,))
         user = cursor.fetchone()
-
-        # 2️⃣ 사용자 존재 여부 확인
-        if not user:
-            conn.close()
-            return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}), 401
-
-        # 3️⃣ 비밀번호 일치 여부 확인 (bcrypt)
-        if not bcrypt.checkpw(user_password.encode("utf-8"), user["user_password"].encode("utf-8")):
-            conn.close()
-            return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}), 401
-
-        # 4️⃣ 로그인 성공
         conn.close()
+
+        if not user:
+            return jsonify({"error": "존재하지 않는 아이디입니다."}), 401
+
+        if not bcrypt.checkpw(password.encode('utf-8'), user['user_pw'].encode('utf-8')):
+            return jsonify({"error": "비밀번호가 올바르지 않습니다."}), 401
+
+        # 로그인 성공 시 세션 저장
+        session["user_id"] = user["user_id"]
+        session["role"] = user["user_type"]
+
         return jsonify({
-            "message": "로그인 성공!",
+            "message": "로그인 성공",
             "user_id": user["user_id"],
-            "user_name": user["user_name"],
-            "role": user["role"]
+            "role": user["user_type"]
         })
 
     except Exception as e:
-        print("로그인 오류:", e)
+        print("❌ 로그인 실패:", e)
         return jsonify({"error": str(e)}), 500
+
 
 
 
 
 # ------------------------------------
 # 친구 연결 요청
-@app.route("/request_connection", methods=["POST"])
+@app.route('/request_connection', methods=['POST'])
 def request_connection():
-    data = request.json
-    guardian_id = data.get("guardian_id")
+    if "user_id" not in session:
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    guardian_id = session.get("user_id")
+    data = request.get_json()
     patient_id = data.get("patient_id")
 
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    if not patient_id:
+        return jsonify({"error": "환자 ID가 없습니다."}), 400
 
-    cursor.execute("""
-        SELECT * FROM connection_request
-        WHERE guardian_id=%s AND patient_id=%s AND status='pending'
-    """, (guardian_id, patient_id))
-    existing = cursor.fetchone()
-    if existing:
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO connection_request (guardian_id, patient_id, status)
+            VALUES (%s, %s, 'pending')
+        """, (guardian_id, patient_id))
+        conn.commit()
         conn.close()
-        return jsonify({"error": "이미 요청이 대기 중입니다."}), 400
+        return jsonify({"message": "요청이 전송되었습니다."})
+    except Exception as e:
+        print("❌ 요청 실패:", e)
+        return jsonify({"error": str(e)}), 500
 
-    cursor.execute("""
-        INSERT INTO connection_request (guardian_id, patient_id, status)
-        VALUES (%s, %s, 'pending')
-    """, (guardian_id, patient_id))
-    conn.commit()
-    conn.close()
-    return jsonify({"message": "연결 요청 완료!"})
 
 
 @app.route("/requests", methods=["POST"])
