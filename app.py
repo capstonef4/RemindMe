@@ -117,16 +117,24 @@ def add_user():
         data = request.json
         user_name = data.get("user_name")
         user_phone = data.get("user_phone")
-        user_id_login = data.get("user_id_login")  # ✅ DB 컬럼 이름과 맞게 수정
+        user_id_login = data.get("user_id_login")
         user_password = data.get("user_password")
         role = data.get("role")
 
-        # 비밀번호 해싱
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # ✅ 1️⃣ 중복 아이디 확인 추가
+        cursor.execute("SELECT * FROM users WHERE user_id_login = %s", (user_id_login,))
+        existing = cursor.fetchone()
+        if existing:
+            conn.close()
+            return jsonify({"error": "이미 사용 중인 아이디입니다."}), 400
+
+        # ✅ 2️⃣ 비밀번호 해싱
         password_hash = bcrypt.hashpw(user_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
+        # ✅ 3️⃣ DB 저장
         cursor.execute("""
             INSERT INTO users (user_name, user_phone, user_id_login, user_password, role)
             VALUES (%s, %s, %s, %s, %s)
@@ -135,37 +143,52 @@ def add_user():
         conn.commit()
         conn.close()
         return jsonify({"message": "회원가입 성공!"})
+
     except Exception as e:
         print("회원가입 오류:", e)
         return jsonify({"error": str(e)}), 500
 
 
+
 # ------------------------------------
 # 로그인
-@app.route("/do_login", methods=["POST"])
-def do_login():
+@app.route("/login", methods=["POST"])
+def login():
     try:
         data = request.json
-        user_id_login = data.get("user_id_login")  # ✅ 컬럼 이름 맞춤
+        user_id_login = data.get("user_id_login")
         user_password = data.get("user_password")
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE user_id_login=%s", (user_id_login,))
-        user = cursor.fetchone()
-        conn.close()
 
-        if user and bcrypt.checkpw(user_password.encode("utf-8"), user["user_password"].encode("utf-8")):
-            return jsonify({
-                "message": "로그인 성공!",
-                "user_id": user["user_id"],
-                "role": user["role"]
-            })
-        else:
-            return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다"}), 401
+        # 1️⃣ 아이디로 사용자 검색
+        cursor.execute("SELECT * FROM users WHERE user_id_login = %s", (user_id_login,))
+        user = cursor.fetchone()
+
+        # 2️⃣ 사용자 존재 여부 확인
+        if not user:
+            conn.close()
+            return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}), 401
+
+        # 3️⃣ 비밀번호 일치 여부 확인 (bcrypt)
+        if not bcrypt.checkpw(user_password.encode("utf-8"), user["user_password"].encode("utf-8")):
+            conn.close()
+            return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}), 401
+
+        # 4️⃣ 로그인 성공
+        conn.close()
+        return jsonify({
+            "message": "로그인 성공!",
+            "user_id": user["user_id"],
+            "user_name": user["user_name"],
+            "role": user["role"]
+        })
+
     except Exception as e:
         print("로그인 오류:", e)
         return jsonify({"error": str(e)}), 500
+
 
 
 
