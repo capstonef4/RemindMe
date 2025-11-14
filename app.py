@@ -4,12 +4,15 @@ from werkzeug.utils import secure_filename
 import mysql.connector
 import bcrypt
 import random
-import os
+
 from datetime import date, datetime
 
-app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "default-secret-key")
+import os
 
+app = Flask(__name__,
+            static_folder='static',
+            static_url_path='/static')
+app.config['SECRET_KEY'] = 'your_secret_key'
 # 사진 업로드 설정
 UPLOAD_FOLDER = 'static/uploads/photos'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
