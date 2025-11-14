@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session, render_template, redirect
+from flask import Flask, request, jsonify, session, render_template, redirect, send_from_directory
 
 from werkzeug.utils import secure_filename
 import mysql.connector
@@ -53,6 +53,10 @@ def signup_page(): return render_template('signup.html')
 
 @app.route('/login')
 def login_page(): return render_template('login.html')
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('static', filename)
 
 
 @app.route('/guardian')
