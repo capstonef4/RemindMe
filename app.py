@@ -21,20 +21,33 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 
+
 def get_db_connection():
     try:
-        conn = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            port=int(os.getenv("DB_PORT")),   # 포트는 숫자로 변환!
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASS"),
-            database=os.getenv("DB_NAME")
-        )
+        if os.getenv("DB_HOST"):  # Production - PostgreSQL
+            import psycopg2
+            conn = psycopg2.connect(
+                host=os.getenv("DB_HOST"),
+                port=int(os.getenv("DB_PORT", "5432")),
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASS"),
+                database=os.getenv("DB_NAME")
+            )
+        else:  # Local - MySQL
+            import mysql.connector
+            conn = mysql.connector.connect(
+                host=os.getenv("DB_HOST"),
+                port=int(os.getenv("DB_PORT")),
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASS"),
+                database=os.getenv("DB_NAME")
+            )
         print("✅ DB 연결 성공")
         return conn
     except Exception as e:
         print("❌ DB 연결 실패:", e)
         return None
+
 
 
 
