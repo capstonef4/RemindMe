@@ -187,36 +187,46 @@ def add_user():
 # 로그인
 @app.route('/do_login', methods=['POST'])
 def do_login():
-    data = request.get_json()
-    user_id_login = data.get("id")
-    password = data.get("password")
+    user_id = request.form['user_id']
+    user_pw = request.form['user_pw']
+
+    print(f"🔍 로그인 시도: user_id={user_id}")
+
+    conn = get_db_connection()
+    if conn is None:
+        print("❌ DB 연결 실패")
+        return jsonify({'success': False, 'message': 'DB 연결 실패'}), 500
 
     try:
-        conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE user_id_login = %s", (user_id_login,))
+        query = "SELECT * FROM users WHERE user_id = %s"
+        print(f"🔍 SQL: {query} with user_id={user_id}")
+        cursor.execute(query, (user_id,))
         user = cursor.fetchone()
-        conn.close()
 
-        if not user:
-            return jsonify({"error": "존재하지 않는 아이디입니다."}), 401
+        print(f"🔍 쿼리 결과: {user}")
 
-        if not bcrypt.checkpw(password.encode('utf-8'), user['user_pw'].encode('utf-8')):
-            return jsonify({"error": "비밀번호가 올바르지 않습니다."}), 401
+        if user is None:
+            print("❌ 사용자 없음")
+            return jsonify({'success': False, 'message': '아이디 또는 비밀번호가 일치하지 않습니다.'}), 401
 
-        # 로그인 성공 시 세션 저장
-        session["user_id"] = user["user_id"]
-        session["role"] = user["user_type"]
-
-        return jsonify({
-            "message": "로그인 성공",
-            "user_id": user["user_id"],
-            "role": user["user_type"]
-        })
+        # 비밀번호 확인
+        if bcrypt.checkpw(user_pw.encode('utf-8'), user['user_pw'].encode('utf-8')):
+            print("✅ 로그인 성공")
+            session['user_id'] = user_id
+            return jsonify({'success': True, 'redirect': '/main'})
+        else:
+            print("❌ 비밀번호 불일치")
+            return jsonify({'success': False, 'message': '아이디 또는 비밀번호가 일치하지 않습니다.'}), 401
 
     except Exception as e:
-        print("❌ 로그인 실패:", e)
-        return jsonify({"error": str(e)}), 500
+        print(f"❌ 로그인 에러: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': '로그인 처리 중 오류'}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 
 
