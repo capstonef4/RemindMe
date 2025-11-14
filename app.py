@@ -20,32 +20,36 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-
-
 def get_db_connection():
     try:
-        if os.getenv("DB_HOST"):  # Production - PostgreSQL
-            import psycopg2
-            conn = psycopg2.connect(
-                host=os.getenv("DB_HOST"),
-                port=int(os.getenv("DB_PORT", "5432")),
-                user=os.getenv("DB_USER"),
-                password=os.getenv("DB_PASS"),
-                database=os.getenv("DB_NAME"),
-                sslmode='prefer'  # require 대신 prefer
+        database_url = os.getenv("DATABASE_URL")
+
+        if database_url:
+            # DATABASE_URL 파싱
+            import mysql.connector
+            from urllib.parse import urlparse
+
+            result = urlparse(database_url)
+            conn = mysql.connector.connect(
+                host=result.hostname,
+                port=result.port,
+                user=result.username,
+                password=result.password,
+                database=result.path[1:]  # "/" 제거
             )
-            print("✅ PostgreSQL 연결 성공")
-        else:  # Local - MySQL
+            print("✅ MySQL 연결 성공 (DATABASE_URL)")
+            return conn
+        else:  # Local
             import mysql.connector
             conn = mysql.connector.connect(
-                host=os.getenv("DB_HOST"),
-                port=int(os.getenv("DB_PORT")),
-                user=os.getenv("DB_USER"),
-                password=os.getenv("DB_PASS"),
-                database=os.getenv("DB_NAME")
+                host="localhost",
+                port=3306,
+                user="root",
+                password="0000",
+                database="remind_me"
             )
-            print("✅ MySQL 연결 성공")
-        return conn
+            print("✅ MySQL 로컬 연결 성공")
+            return conn
     except Exception as e:
         print(f"❌ DB 연결 실패: {e}")
         return None
