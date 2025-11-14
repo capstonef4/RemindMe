@@ -91,8 +91,7 @@ def math_page(): return render_template('math.html')
 def rock_page(): return render_template('rock.html')
 
 
-@app.route('/album')
-def album_page(): return render_template('album.html')
+
 
 
 @app.route('/word')
