@@ -31,8 +31,10 @@ def get_db_connection():
                 port=int(os.getenv("DB_PORT", "5432")),
                 user=os.getenv("DB_USER"),
                 password=os.getenv("DB_PASS"),
-                database=os.getenv("DB_NAME")
+                database=os.getenv("DB_NAME"),
+                sslmode='prefer'  # require 대신 prefer
             )
+            print("✅ PostgreSQL 연결 성공")
         else:  # Local - MySQL
             import mysql.connector
             conn = mysql.connector.connect(
@@ -42,10 +44,10 @@ def get_db_connection():
                 password=os.getenv("DB_PASS"),
                 database=os.getenv("DB_NAME")
             )
-        print("✅ DB 연결 성공")
+            print("✅ MySQL 연결 성공")
         return conn
     except Exception as e:
-        print("❌ DB 연결 실패:", e)
+        print(f"❌ DB 연결 실패: {e}")
         return None
 
 
